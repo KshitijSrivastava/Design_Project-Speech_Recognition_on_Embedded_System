@@ -1,0 +1,28 @@
+--cpu=Cortex-M4.fp
+"numrecdp\startup_stm32f407xx.o"
+"numrecdp\stm32f4xx_hal_flash_ex.o"
+"numrecdp\stm32f4xx_hal_rcc_ex.o"
+"numrecdp\stm32f4xx_hal_dma.o"
+"numrecdp\stm32f4xx_hal_uart.o"
+"numrecdp\stm32f4xx_hal_pwr_ex.o"
+"numrecdp\stm32f4xx_hal_cortex.o"
+"numrecdp\stm32f4xx_hal_pwr.o"
+"numrecdp\stm32f4xx_hal_flash_ramfunc.o"
+"numrecdp\stm32f4xx_hal_tim_ex.o"
+"numrecdp\stm32f4xx_hal_flash.o"
+"numrecdp\stm32f4xx_hal_gpio.o"
+"numrecdp\stm32f4xx_hal_tim.o"
+"numrecdp\stm32f4xx_hal_rcc.o"
+"numrecdp\stm32f4xx_hal.o"
+"numrecdp\stm32f4xx_hal_adc.o"
+"numrecdp\stm32f4xx_hal_adc_ex.o"
+"numrecdp\stm32f4xx_hal_dma_ex.o"
+"numrecdp\system_stm32f4xx.o"
+"numrecdp\stm32f4xx_it.o"
+"numrecdp\main.o"
+"numrecdp\stm32f4xx_hal_msp.o"
+"numrecdp\fput_debug.o"
+--library_type=microlib --strict --scatter "NumRecDP\NumRecDP.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "NumRecDP.map" -o NumRecDP\NumRecDP.axf
