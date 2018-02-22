@@ -137,14 +137,27 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
 			DMA_Active = 0;
 			HAL_ADC_Stop_DMA(&hadc1);
 			mahalaTrans(ADCBuffer, normalizedBuffer, bufferSize);
-			//implementVAD 
+			//TODO: Implement & test VAD 
+			VAD_Detection(normalizedBuffer, bufferSize);
     }
+		
+/* Function to send int buffer over UART */	
+void UART_Transmit_I(int *array, int size)
+		{
+			char send[9];
+			printf("Sending int via UART...\n");
+			for(int i = 0; i < size; i++){
+					sprintf(send, "%d,\r\n",array[i]);
+					HAL_UART_Transmit(&huart2, send, 9, 1000);
+			}
+		}
+		
 /* Function to send uint32_t buffer over UART */	
 void UART_Transmit_U(uint32_t *array, int size)
 		{
 			char send[9];
 			printf("Sending uint via UART...\n");
-			for(int i = 0; i < bufferSize; i++){
+			for(int i = 0; i < size; i++){
 					sprintf(send, "%lu,\r\n",array[i]);
 					HAL_UART_Transmit(&huart2, send, 9, 1000);
 			}
@@ -156,7 +169,7 @@ void UART_Transmit_F(float *array, int size)
 			char send[20];
 			printf("Sending float via UART...\n");
 			printf("array[i] size: %d",sizeof(array[2]));
-			for(int i = 0; i < bufferSize; i++){
+			for(int i = 0; i < size; i++){
 					sprintf(send, " %f,\r\n",array[i]);
 					HAL_UART_Transmit(&huart2, send, 9, 1000);
 					sprintf(send, " ,****\r\n");
@@ -236,9 +249,11 @@ int main(void)
 		UART_Transmit_F(normalizedBuffer, bufferSize);
 		//UART_Transmit_U(ADCBuffer, bufferSize);
 		
-	}else if(UART_Flag == 3 && firstSend == 1){ //Press button twice more for UART of unfiltered array
+	}else if(UART_Flag == 3 && firstSend == 1){ //Press button twice more for UART of ZCR & Energy
 		firstSend++;
-		UART_Transmit_U(ADCBuffer, bufferSize);
+		//UART_Transmit_U(ADCBuffer, bufferSize);
+		UART_Transmit_F(ZCR, 40);
+		UART_Transmit_F(Energy, 40);
 		//UART_Transmit_F(normalizedBuffer, bufferSize);
 	}
 		
