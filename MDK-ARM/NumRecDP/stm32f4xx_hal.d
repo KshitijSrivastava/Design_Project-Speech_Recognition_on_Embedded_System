@@ -2,12 +2,13 @@ numrecdp\stm32f4xx_hal.o: ../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c
 numrecdp\stm32f4xx_hal.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 numrecdp\stm32f4xx_hal.o: ../Inc/stm32f4xx_hal_conf.h
 numrecdp\stm32f4xx_hal.o: ../Inc/main.h
+numrecdp\stm32f4xx_hal.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+numrecdp\stm32f4xx_hal.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 numrecdp\stm32f4xx_hal.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
 numrecdp\stm32f4xx_hal.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
 numrecdp\stm32f4xx_hal.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
 numrecdp\stm32f4xx_hal.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h
 numrecdp\stm32f4xx_hal.o: ../Drivers/CMSIS/Include/core_cm4.h
-numrecdp\stm32f4xx_hal.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 numrecdp\stm32f4xx_hal.o: ../Drivers/CMSIS/Include/core_cmInstr.h
 numrecdp\stm32f4xx_hal.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 numrecdp\stm32f4xx_hal.o: ../Drivers/CMSIS/Include/core_cmFunc.h

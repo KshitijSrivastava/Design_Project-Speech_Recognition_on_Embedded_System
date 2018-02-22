@@ -12,6 +12,7 @@ numrecdp\fput_debug.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32
 numrecdp\fput_debug.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 numrecdp\fput_debug.o: ../Inc/stm32f4xx_hal_conf.h
 numrecdp\fput_debug.o: ../Inc/main.h
+numrecdp\fput_debug.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 numrecdp\fput_debug.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
 numrecdp\fput_debug.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
 numrecdp\fput_debug.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h

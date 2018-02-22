@@ -40,7 +40,9 @@
 #include "stm32f4xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include <stdint.h>
+#include <stdbool.h>
+#include <math.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -51,15 +53,16 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-int bufferSize = 12000; //NOTE: bufferSize NEEDS to be even...
-uint32_t ADCBuffer[14000]; //make sure this is the same length as bufferSize
-float Speech[14000];
-int VADBuffer [35];
-//uint32_t valuesStored[10000]; //needs to be bufferSize/2
-//uint32_t valuesStored2[10000]; //needs to be bufferSize/2
+const int bufferSize = 16000;
+static uint32_t ADCBuffer[bufferSize];
+float normalizedBuffer[bufferSize];
+int VADarray[40]; //40*400 = bufferSize
+
 int UART_Flag = 0;
-uint32_t ADCValue;
-/* USER CODE END PV */ 
+int DMA_Active = 0;
+int firstSend = 0;
+
+/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -74,54 +77,61 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-void mahalaVAD(uint32_t *ADCBuffer, float *Speech,int *VADBuffer, int offSet){
 
-
+//TODO: mahalanobis Transform
+void mahalaTrans(uint32_t *ADCBuffer, float *Speech, int size){
+	float mean;
+	for(int i = 0; i < size; i++){
+		mean = mean + ADCBuffer[i];
+	}
+	mean = mean/size;
+	printf("Mean: %f\n",mean);
+	float var;
+	for(int i = 0; i < size; i++){
+		var = var + pow((ADCBuffer[i]-mean),2);
+	}
+	var = var/size;
+	printf("Var: %f\n",var);
+	for(int i = 0; i < size; i++){
+		Speech[i] = (ADCBuffer[i]-mean)/var;
+	}
 }
 
+/* Called when DMA has filled up buffer completely */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
-    { uint32_t tempADC;
-			if(AdcHandle ->Instance == ADC1)
-				{
-					//TODO: go through array and filter
-					int segmentWindow = 400;
-					for(int i = 0; i < 40; i++){
-					mahalaVAD(ADCBuffer,Speech,VADBuffer,i*400);						
-					}
-					
-/* PING PONG buffer implementation */ //KEEP uncommented
-//					
-//				for(int j = 0; j<bufferSize/2; j++){
-//					tempADC = ADCBuffer[bufferSize/2 + j];
-//					valuesStored2[j] = tempADC;
-//				}
-				
-				}
-			if(UART_Flag == 0)
-					UART_Flag = 1;
+    {
+			printf("DMA CONV COMPLETE\n");
+			DMA_Active = 0;
+			HAL_ADC_Stop_DMA(&hadc1);
+			mahalaTrans(ADCBuffer, normalizedBuffer, bufferSize);
     }
-
-/* PING PONG BUFFER implementation */ //KEEP uncommented
-//void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* AdcHandle)
-//    { uint32_t tempADCh;
-//			if(AdcHandle ->Instance == ADC1){
-//				for(int k = 0; k<bufferSize/2; k++){
-//					  tempADCh = ADCBuffer[k];
-//						valuesStored[k] = tempADCh;
-//				}
-//			}
-//    }
-//		
-void sendUART(UART_HandleTypeDef* UartHandle, uint32_t *array, int size)
-		{	char send[32];
-			////char send2[100];
-			//char send3[50];
-			for(int u = 0; u < size; u++){
-					sprintf(send, "%lu,\r\n",ADCBuffer[u]);
-					int len = strlen(send);
-					HAL_UART_Transmit(&huart2, send, len, 1000);
+/* Function to send uint32_t buffer over UART */	
+void UART_Transmit_U(uint32_t *array, int size)
+		{
+			char send[9];
+			printf("Sending uint via UART...\n");
+			for(int i = 0; i < bufferSize; i++){
+					sprintf(send, "%lu,\r\n",array[i]);
+					HAL_UART_Transmit(&huart2, send, 9, 1000);
 			}
 		}
+		
+/* Function to send float buffer over UART */	
+void UART_Transmit_F(float *array, int size)
+		{
+			char send[20];
+			printf("Sending float via UART...\n");
+			printf("array[i] size: %d",sizeof(array[2]));
+			for(int i = 0; i < bufferSize; i++){
+					sprintf(send, " %f,\r\n",array[i]);
+					HAL_UART_Transmit(&huart2, send, 9, 1000);
+					sprintf(send, " ,****\r\n");
+					HAL_UART_Transmit(&huart2, send, 9, 1000);
+					
+			}
+		}
+		
+	
 /* USER CODE END 0 */
 
 /**
@@ -132,7 +142,7 @@ void sendUART(UART_HandleTypeDef* UartHandle, uint32_t *array, int size)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	char start[5][32];
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -158,40 +168,25 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 	
-	/* Turn on 4 LEDs on board */
-
-	HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
-	
+	//HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
 	HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
-	HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
+	//HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
 	HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 	printf("ALL PINS ON...\n");
 	
-	sprintf(start[0],"Start speaking in  ");
-	sprintf(start[1],"3\t");
-	sprintf(start[2],"2\t");
-	sprintf(start[3],"1\t");
-	sprintf(start[4],"GO!\t\n");
+	HAL_ADC_Start(&hadc1);
 	
-	for(int k = 0; k < 5; k++){
-	HAL_Delay(10000);
-	if(k == 1)
-			HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
-	if(k == 2)
-			HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
-	if(k == 3)
-			HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
+	HAL_Delay(2000);
 	
-	HAL_UART_Transmit(&huart2, start[k], 32, 1000);
-	if(k == 4){
-		HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
-		HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
-		HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
-	}
-		
-	}
+	HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
+	HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
+	HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
+	HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 	
-	HAL_ADC_Start_DMA(&hadc1, ADCBuffer, bufferSize);
+	DMA_Active = 1;
+	HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
+
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -202,17 +197,17 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
+	if(UART_Flag > 0 && firstSend == 0){
+		firstSend++;
+		UART_Transmit_F(normalizedBuffer, bufferSize);
+		//UART_Transmit_U(ADCBuffer, bufferSize);
 		
-		
-	HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
-	HAL_Delay(3000);
-	if(UART_Flag == 1){
-		sendUART(&huart2, ADCBuffer,bufferSize);
-		UART_Flag = 2;
+	}else if(UART_Flag == 3 && firstSend == 1){
+		firstSend++;
+		UART_Transmit_F(normalizedBuffer, bufferSize);
 	}
 		
-	//printf("valuesStored[%i]= %04x\n",bufferSize, valuesStored[bufferSize/2-1]);
-	//printf("valuesStored2[%i]= %04x\n",bufferSize, valuesStored2[bufferSize/2-1]);
+		
   }
   /* USER CODE END 3 */
 
@@ -268,7 +263,7 @@ void SystemClock_Config(void)
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/8000);
 
     /**Configure the Systick 
-    */ 
+    */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
   /* SysTick_IRQn interrupt configuration */
@@ -294,7 +289,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -304,7 +299,9 @@ static void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+	//sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
+	//sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -386,8 +383,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-/* Config DMA options */
 
 /* USER CODE END 4 */
 

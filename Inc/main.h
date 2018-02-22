@@ -44,7 +44,8 @@
 /* Includes ------------------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
-
+#include <stdint.h>
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
@@ -66,7 +67,9 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
-
+extern const int bufferSize;
+extern int DMA_Active;
+extern int UART_Flag;
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -36,7 +36,7 @@
 #include "stm32f4xx_it.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "main.h"
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -177,7 +177,8 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-	HAL_ADC_Start_IT(&hadc1);
+	if(DMA_Active == 1)
+		HAL_ADC_Start_IT(&hadc1);
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
@@ -203,10 +204,10 @@ void EXTI0_IRQHandler(void)
   /* USER CODE END EXTI0_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
   /* USER CODE BEGIN EXTI0_IRQn 1 */
+	//if(UART_Flag == 0){
+		UART_Flag++;	
 	
-	HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
-	HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
-	HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
+	
   /* USER CODE END EXTI0_IRQn 1 */
 }
 
@@ -230,14 +231,11 @@ void ADC_IRQHandler(void)
 void DMA2_Stream0_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream0_IRQn 0 */
-	//flags when buffer is full!
-	//printf("**** DMA FLAG! ****\n");
-	
+
   /* USER CODE END DMA2_Stream0_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
-	//printf("#### DMA FLAG END ####\n");
-	//HAL_DMA_Stop(&hadc1);
+
   /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 
