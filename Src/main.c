@@ -42,6 +42,8 @@
 /* USER CODE BEGIN Includes */
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 /* USER CODE END Includes */
 
@@ -57,7 +59,8 @@ const int bufferSize = 16000;
 static uint32_t ADCBuffer[bufferSize];
 float normalizedBuffer[bufferSize];
 int VADarray[40]; //40*400 = bufferSize
-
+float ZCR[40];
+float Energy[40];
 int UART_Flag = 0;
 int DMA_Active = 0;
 int firstSend = 0;
@@ -77,8 +80,38 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+//VAD function
+void VAD_Detection(float *array, int size){
+	
+	for(int i = 0; i < 40; i++){
+		int tempBuff[400];
+		float tempEnergy = 0;
+		for(int k = 0; k < 400; k++){ //index of array is [400*i + k]
+			tempEnergy = tempEnergy + array[400*i+k]*array[400*i+k];
+			if(array[400*i+k] > 0){ //fill up temp buf with either 0 or 1
+				tempBuff[k] = 1;
+			}else tempBuff[k] = 0;
+			
+			if(k>0){//calculate diff
+				tempBuff[k-1] = abs(tempBuff[k-1]-tempBuff[k]);
+			}
+		}
+		tempBuff[399] = 0; //set last value as it has no next value to be compared to
+		//calculate mean on tempBuff and store in ZRC array
+		float ZCRMean;
+		for(int k = 0; k < 400; k++){
+			ZCRMean = ZCRMean + tempBuff[k];
+		}
+		ZCRMean = ZCRMean/400;
+		ZCR[i] = ZCRMean;
+		Energy[i] = tempEnergy;
+		//TODO: set VAD_array to 0 or 2 (1 means not sure) **Need to find Threshold**
+		
+	}
+	
+}
 
-//TODO: mahalanobis Transform
+//Mahalanobis Transform
 void mahalaTrans(uint32_t *ADCBuffer, float *Speech, int size){
 	float mean;
 	for(int i = 0; i < size; i++){
@@ -104,6 +137,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
 			DMA_Active = 0;
 			HAL_ADC_Stop_DMA(&hadc1);
 			mahalaTrans(ADCBuffer, normalizedBuffer, bufferSize);
+			//implementVAD 
     }
 /* Function to send uint32_t buffer over UART */	
 void UART_Transmit_U(uint32_t *array, int size)
@@ -176,12 +210,12 @@ int main(void)
 	
 	HAL_ADC_Start(&hadc1);
 	
-	HAL_Delay(2000);
+	HAL_Delay(4000);
 	
 	HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
-	HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
+	//HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
 	HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
-	HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
+	//HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 	
 	DMA_Active = 1;
 	HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
@@ -197,14 +231,15 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	if(UART_Flag > 0 && firstSend == 0){
+	if(UART_Flag > 0 && firstSend == 0){ //Press button once to start UART
 		firstSend++;
 		UART_Transmit_F(normalizedBuffer, bufferSize);
 		//UART_Transmit_U(ADCBuffer, bufferSize);
 		
-	}else if(UART_Flag == 3 && firstSend == 1){
+	}else if(UART_Flag == 3 && firstSend == 1){ //Press button twice more for UART of unfiltered array
 		firstSend++;
-		UART_Transmit_F(normalizedBuffer, bufferSize);
+		UART_Transmit_U(ADCBuffer, bufferSize);
+		//UART_Transmit_F(normalizedBuffer, bufferSize);
 	}
 		
 		
