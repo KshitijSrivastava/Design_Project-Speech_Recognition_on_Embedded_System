@@ -56,11 +56,11 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 const int bufferSize = 16000;
-static uint32_t ADCBuffer[bufferSize];
-float normalizedBuffer[bufferSize];
-int VADarray[40]; //40*400 = bufferSize
 float ZCR[40];
 float Energy[40];
+float normalizedBuffer[bufferSize];
+static uint32_t ADCBuffer[bufferSize];
+int VADarray[40]; //40*400 = bufferSize
 int UART_Flag = 0;
 int DMA_Active = 0;
 int firstSend = 0;
@@ -76,7 +76,9 @@ static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+void UART_Transmit_ZCR();
+void UART_Transmit_Energy();
+void UART_Transmit_F(float *array, int size);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -139,15 +141,33 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
 			mahalaTrans(ADCBuffer, normalizedBuffer, bufferSize);
 			//TODO: Implement & test VAD 
 			VAD_Detection(normalizedBuffer, bufferSize);
+			UART_Transmit_ZCR();
+			UART_Transmit_Energy();
+			UART_Transmit_F(normalizedBuffer, bufferSize);
+			
     }
 		
 /* Function to send int buffer over UART */	
-void UART_Transmit_I(int *array, int size)
+void UART_Transmit_ZCR()
 		{
 			char send[9];
 			printf("Sending int via UART...\n");
-			for(int i = 0; i < size; i++){
-					sprintf(send, "%d,\r\n",array[i]);
+			for(int i = 0; i < 40; i++){
+					sprintf(send, "%f,\r\n",ZCR[i]);
+					HAL_UART_Transmit(&huart2, send, 9, 1000);
+					sprintf(send, " ,****\r\n");
+					HAL_UART_Transmit(&huart2, send, 9, 1000);
+			}
+		}
+		
+void UART_Transmit_Energy()
+		{
+			char send[9];
+			printf("Sending int via UART...\n");
+			for(int i = 0; i < 40; i++){
+					sprintf(send, "%f,\r\n",Energy[i]);
+					HAL_UART_Transmit(&huart2, send, 9, 1000);
+					sprintf(send, " ,****\r\n");
 					HAL_UART_Transmit(&huart2, send, 9, 1000);
 			}
 		}
@@ -252,8 +272,8 @@ int main(void)
 	}else if(UART_Flag == 3 && firstSend == 1){ //Press button twice more for UART of ZCR & Energy
 		firstSend++;
 		//UART_Transmit_U(ADCBuffer, bufferSize);
-		UART_Transmit_F(ZCR, 40);
-		UART_Transmit_F(Energy, 40);
+		UART_Transmit_ZCR();
+		UART_Transmit_Energy();
 		//UART_Transmit_F(normalizedBuffer, bufferSize);
 	}
 		
