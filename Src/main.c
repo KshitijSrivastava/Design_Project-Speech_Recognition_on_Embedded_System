@@ -56,14 +56,17 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 const int bufferSize = 16000;
-float ZCR[40];
-float Energy[40];
+const int frames = 40;
+float ZCR[frames];
+float Energy[frames];
 float normalizedBuffer[bufferSize];
 static uint32_t ADCBuffer[bufferSize];
-int VADarray[40]; //40*400 = bufferSize
+int VADarray[frames]; //frames*400 = bufferSize
 int UART_Flag = 0;
 int DMA_Active = 0;
 int firstSend = 0;
+int start = 0;
+int stop = 0;
 
 /* USER CODE END PV */
 
@@ -83,9 +86,41 @@ void UART_Transmit_F(float *array, int size);
 
 /* USER CODE BEGIN 0 */
 //VAD function
-void VAD_Detection(float *array, int size){
+void VADdetection(float *energy, float *zcr, int *vad){
+
+	for(int i = 0; i < frames; i++){
+			vad[i] = 0;
+		if(zcr[i] <= 0.25 && zcr[i] != 0 && energy[i] >= 0.001){
+			vad[i] = 1;
+		}
+	}
+
+	int minWindow = 6;
+	for(int i = 0; i < frames; i++){
+		if(vad[i] == 1){
+			if(start == 0)
+				start = i;
+		}
+		if(vad[i] == 0){
+			if(start != 0 && stop == 0){
+				stop = i;
+				if(stop - start < minWindow){
+					start = 0;
+					stop = 0;
+				}
+			}
+		}
+		if( i == frames-1 && stop == 0){
+				stop =i;
+		}
+	}
 	
-	for(int i = 0; i < 40; i++){
+}
+
+//Pre-VAD functions
+void energy_ZCR(float *array, int size){
+	
+	for(int i = 0; i < frames; i++){
 		int tempBuff[400];
 		float tempEnergy = 0;
 		for(int k = 0; k < 400; k++){ //index of array is [400*i + k]
@@ -140,7 +175,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
 			HAL_ADC_Stop_DMA(&hadc1);
 			mahalaTrans(ADCBuffer, normalizedBuffer, bufferSize);
 			//TODO: Implement & test VAD 
-			VAD_Detection(normalizedBuffer, bufferSize);
+			energy_ZCR(normalizedBuffer, bufferSize);
+			VADdetection(Energy, ZCR, VADarray);
 			UART_Transmit_ZCR();
 			UART_Transmit_Energy();
 			UART_Transmit_F(normalizedBuffer, bufferSize);
@@ -188,7 +224,6 @@ void UART_Transmit_F(float *array, int size)
 		{
 			char send[20];
 			printf("Sending float via UART...\n");
-			printf("array[i] size: %d",sizeof(array[2]));
 			for(int i = 0; i < size; i++){
 					sprintf(send, " %f,\r\n",array[i]);
 					HAL_UART_Transmit(&huart2, send, 9, 1000);
@@ -196,6 +231,7 @@ void UART_Transmit_F(float *array, int size)
 					HAL_UART_Transmit(&huart2, send, 9, 1000);
 					
 			}
+			printf("Done UART...\n");
 		}
 		
 	
@@ -369,9 +405,9 @@ static void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
+  //sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
 	//sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
-	//sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+	sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
