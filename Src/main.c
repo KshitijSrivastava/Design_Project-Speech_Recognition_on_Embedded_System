@@ -82,6 +82,7 @@ static void MX_USART2_UART_Init(void);
 void UART_Transmit_ZCR();
 void UART_Transmit_Energy();
 void UART_Transmit_F(float *array, int size);
+void UART_Transmit_U(uint32_t *array, int size);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -90,12 +91,12 @@ void VADdetection(float *energy, float *zcr, int *vad){
 
 	for(int i = 0; i < frames; i++){
 			vad[i] = 0;
-		if(zcr[i] <= 0.25 && zcr[i] != 0 && energy[i] >= 0.001){
+		if(zcr[i] <= 0.65 && zcr[i] != 0 && energy[i] >= 0.1){
 			vad[i] = 1;
 		}
 	}
 
-	int minWindow = 6;
+	int minWindow = 5;
 	for(int i = 0; i < frames; i++){
 		if(vad[i] == 1){
 			if(start == 0)
@@ -173,6 +174,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
 			printf("DMA CONV COMPLETE\n");
 			DMA_Active = 0;
 			HAL_ADC_Stop_DMA(&hadc1);
+			//UART_Transmit_U(ADCBuffer, bufferSize);
 			mahalaTrans(ADCBuffer, normalizedBuffer, bufferSize);
 			//TODO: Implement & test VAD 
 			energy_ZCR(normalizedBuffer, bufferSize);
@@ -406,8 +408,8 @@ static void MX_ADC1_Init(void)
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = 1;
   //sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
-	//sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
-	sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+	sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
+	//sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);

@@ -32,23 +32,23 @@ compiling main.c...
   void UART_Transmit_ZCR();
 ../Src/main.c(83): warning:  #1295-D: Deprecated declaration UART_Transmit_Energy - give arg types
   void UART_Transmit_Energy();
-../Src/main.c(93): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-                if(zcr[i] <= 0.25 && zcr[i] != 0 && energy[i] >= 0.001){
-../Src/main.c(93): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-                if(zcr[i] <= 0.25 && zcr[i] != 0 && energy[i] >= 0.001){
-../Src/main.c(193): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-                                        HAL_UART_Transmit(&huart2, send, 9, 1000);
+../Src/main.c(94): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                if(zcr[i] <= 0.65 && zcr[i] != 0 && energy[i] >= 0.1){
+../Src/main.c(94): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                if(zcr[i] <= 0.65 && zcr[i] != 0 && energy[i] >= 0.1){
 ../Src/main.c(195): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
                                         HAL_UART_Transmit(&huart2, send, 9, 1000);
-../Src/main.c(205): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+../Src/main.c(197): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
                                         HAL_UART_Transmit(&huart2, send, 9, 1000);
 ../Src/main.c(207): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
                                         HAL_UART_Transmit(&huart2, send, 9, 1000);
-../Src/main.c(218): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+../Src/main.c(209): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
                                         HAL_UART_Transmit(&huart2, send, 9, 1000);
-../Src/main.c(229): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+../Src/main.c(220): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
                                         HAL_UART_Transmit(&huart2, send, 9, 1000);
 ../Src/main.c(231): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 9, 1000);
+../Src/main.c(233): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
                                         HAL_UART_Transmit(&huart2, send, 9, 1000);
 ../Src/main.c: 11 warnings, 0 errors
 linking...
