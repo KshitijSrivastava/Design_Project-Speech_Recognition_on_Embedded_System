@@ -45,6 +45,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+//#include "mfccFunc.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -55,19 +57,24 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-const int bufferSize = 16000;
-const int frames = 40;
-float ZCR[frames];
-float Energy[frames];
-float normalizedBuffer[bufferSize];
-static uint32_t ADCBuffer[bufferSize];
-int VADarray[frames]; //frames*400 = bufferSize
-int UART_Flag = 0;
-int DMA_Active = 0;
-int firstSend = 0;
-int start = 0;
-int stop = 0;
+const int bufferSize = 4000;
+const int speechSize = 4000;
+const int energyFrame = 40;
+const float threshold = 4;
 
+float normalizedBuffer[speechSize]; //0.5s of speech
+static uint32_t ADCBuffer[bufferSize];
+float ADC_PCM[energyFrame];
+float CC[312];
+
+int DMA_Active = 0;
+float energy = 0;
+int crossThresh = 2100;
+int crossRate = 0;
+int start = -1;
+int speechCap = 0;
+int fillCounter = 0;
+float mfcc[24][13];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,136 +86,141 @@ static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-void UART_Transmit_ZCR();
-void UART_Transmit_Energy();
+void energyDetect(int index);
+void mahalaTrans(float *Speech, int size);
+void mahalaTransUINT(uint32_t *Speech, int size, int index);
 void UART_Transmit_F(float *array, int size);
 void UART_Transmit_U(uint32_t *array, int size);
+void halfMahal(uint32_t *ADCBuffer, int startIndex, int size);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-//VAD function
-void VADdetection(float *energy, float *zcr, int *vad){
-
-	for(int i = 0; i < frames; i++){
-			vad[i] = 0;
-		if(zcr[i] <= 0.65 && zcr[i] != 0 && energy[i] >= 0.1){
-			vad[i] = 1;
-		}
-	}
-
-	int minWindow = 5;
-	for(int i = 0; i < frames; i++){
-		if(vad[i] == 1){
-			if(start == 0)
-				start = i;
-		}
-		if(vad[i] == 0){
-			if(start != 0 && stop == 0){
-				stop = i;
-				if(stop - start < minWindow){
-					start = 0;
-					stop = 0;
+void energyDetect(int index){	
+		
+		for(int i = index; i < index+(bufferSize/2)-energyFrame;i+=20){ //take windows of 40 & increase by 20
+			mahalaTransUINT(ADCBuffer,energyFrame,0);
+			if(start == -1){
+				energy = 0;
+				crossRate = 0;
+				for(int j = 0; j < energyFrame; j++){
+					energy = energy + ADC_PCM[j]*ADC_PCM[j];
+					if( ADCBuffer[i+j] > crossThresh){
+						crossRate++;
+					}
+				}
+				if(energy < threshold){ //threshold detected... ?need to collect 7 prior frames???...
+					//printf("*******Energy: %f\n",energy);
+					start = i;
+					int pointer = i;
+ 					for(int h = 0; h < 7*energyFrame; h++){
+						normalizedBuffer[7*energyFrame-fillCounter] = ADCBuffer[pointer];
+ 						pointer--;
+						if(pointer < 0){
+							pointer = bufferSize-1;
+						}
+ 						fillCounter++;
+ 					}
+					for(int k = 0; k < energyFrame;k++){
+						normalizedBuffer[k+fillCounter] = ADCBuffer[i+k];
+					}
+					fillCounter = fillCounter + energyFrame;
+				}
+			}else if(fillCounter < speechSize){
+				if(i == 0){
+					for(int k = 0; k < energyFrame;k++){
+					
+						normalizedBuffer[k+fillCounter] = ADCBuffer[i+k];
+					}
+					fillCounter = fillCounter + energyFrame;
+				}else{
+					for(int k = 0; k < (energyFrame/2);k++){
+					
+						normalizedBuffer[k+fillCounter] = ADCBuffer[i+(energyFrame/2)+k];
+					}
+					fillCounter = fillCounter + (energyFrame/2);
+				}
+				
+				if(fillCounter > speechSize-2){
+					HAL_ADC_Stop_DMA(&hadc1);
+					fillCounter = 0;
+					speechCap = 1;
+					mahalaTrans(normalizedBuffer,speechSize);
+					//TODO: final check to confirm speech in in normalizedBuffer...(energy,var..)
+					//printf("mahalDone!!\n");
+					UART_Transmit_F(normalizedBuffer,speechSize);
+					printf("UART DONE!!\n");
+ 					//mfcc(normalizedBuffer,CC);
+					
+					mfccFunc(normalizedBuffer, mfcc);
+					UART_Transmit_F(mfcc[0],13);
+					printf("mfcc DONE!!\n");
 				}
 			}
-		}
-		if( i == frames-1 && stop == 0){
-				stop =i;
-		}
-	}
-	
-}
-
-//Pre-VAD functions
-void energy_ZCR(float *array, int size){
-	
-	for(int i = 0; i < frames; i++){
-		int tempBuff[400];
-		float tempEnergy = 0;
-		for(int k = 0; k < 400; k++){ //index of array is [400*i + k]
-			tempEnergy = tempEnergy + array[400*i+k]*array[400*i+k];
-			if(array[400*i+k] > 0){ //fill up temp buf with either 0 or 1
-				tempBuff[k] = 1;
-			}else tempBuff[k] = 0;
 			
-			if(k>0){//calculate diff
-				tempBuff[k-1] = abs(tempBuff[k-1]-tempBuff[k]);
-			}
 		}
-		tempBuff[399] = 0; //set last value as it has no next value to be compared to
-		//calculate mean on tempBuff and store in ZRC array
-		float ZCRMean;
-		for(int k = 0; k < 400; k++){
-			ZCRMean = ZCRMean + tempBuff[k];
-		}
-		ZCRMean = ZCRMean/400;
-		ZCR[i] = ZCRMean;
-		Energy[i] = tempEnergy;
-		//TODO: set VAD_array to 0 or 2 (1 means not sure) **Need to find Threshold**
-		
-	}
+		//printf("HERE!!\n");
+
 	
 }
 
 //Mahalanobis Transform
-void mahalaTrans(uint32_t *ADCBuffer, float *Speech, int size){
+void mahalaTransUINT(uint32_t *Speech, int size, int index){
 	float mean;
-	for(int i = 0; i < size; i++){
-		mean = mean + ADCBuffer[i];
+	for(int i = index; i < size+index; i++){
+		mean = mean + Speech[i];
 	}
 	mean = mean/size;
-	printf("Mean: %f\n",mean);
+	//printf("Mean: %f\n",mean);
 	float var;
-	for(int i = 0; i < size; i++){
-		var = var + pow((ADCBuffer[i]-mean),2);
+	for(int i = index; i < size+index; i++){
+		var = var + pow((Speech[i]-mean),2);
 	}
 	var = var/size;
-	printf("Var: %f\n",var);
+	//printf("Var: %f\n",var);
+	for(int i = index; i < size+index; i++){ 
+		ADC_PCM[i] = (Speech[i]-mean)/var;
+	}
+}
+void mahalaTrans(float *Speech, int size){
+	float mean;
 	for(int i = 0; i < size; i++){
-		Speech[i] = (ADCBuffer[i]-mean)/var;
+		mean = mean + Speech[i];
+	}
+	mean = mean/size;
+	//printf("Mean: %f\n",mean);
+	float var;
+	for(int i = 0; i < size; i++){
+		var = var + pow((Speech[i]-mean),2);
+	}
+	var = var/size;
+	//printf("Var: %f\n",var);
+	for(int i = 0; i < size; i++){
+		Speech[i] = (Speech[i]-mean)/var;
 	}
 }
 
-/* Called when DMA has filled up buffer completely */
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* AdcHandle)
+		{
+
+			//mahalaTransUINT(ADCBuffer,bufferSize/2,0);
+			//cannot run mahalTrans here as noisy parts of the buffers get amplified...
+			energyDetect(0);
+	
+		}
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
     {
-			printf("DMA CONV COMPLETE\n");
-			DMA_Active = 0;
 			HAL_ADC_Stop_DMA(&hadc1);
-			//UART_Transmit_U(ADCBuffer, bufferSize);
-			mahalaTrans(ADCBuffer, normalizedBuffer, bufferSize);
-			//TODO: Implement & test VAD 
-			energy_ZCR(normalizedBuffer, bufferSize);
-			VADdetection(Energy, ZCR, VADarray);
-			UART_Transmit_ZCR();
-			UART_Transmit_Energy();
-			UART_Transmit_F(normalizedBuffer, bufferSize);
-			
+			HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
+			//halfMahal(ADCBuffer, bufferSize/2, bufferSize/2);
+			//mahalaTransUINT(ADCBuffer,bufferSize/2,bufferSize/2);
+			energyDetect(bufferSize/2);
+			//mahalaTransUINT(ADCBuffer,bufferSize);
+			//UART_Transmit_F(ADC_PCM, bufferSize);
+
     }
+
 		
-/* Function to send int buffer over UART */	
-void UART_Transmit_ZCR()
-		{
-			char send[9];
-			printf("Sending int via UART...\n");
-			for(int i = 0; i < 40; i++){
-					sprintf(send, "%f,\r\n",ZCR[i]);
-					HAL_UART_Transmit(&huart2, send, 9, 1000);
-					sprintf(send, " ,****\r\n");
-					HAL_UART_Transmit(&huart2, send, 9, 1000);
-			}
-		}
-		
-void UART_Transmit_Energy()
-		{
-			char send[9];
-			printf("Sending int via UART...\n");
-			for(int i = 0; i < 40; i++){
-					sprintf(send, "%f,\r\n",Energy[i]);
-					HAL_UART_Transmit(&huart2, send, 9, 1000);
-					sprintf(send, " ,****\r\n");
-					HAL_UART_Transmit(&huart2, send, 9, 1000);
-			}
-		}
 		
 /* Function to send uint32_t buffer over UART */	
 void UART_Transmit_U(uint32_t *array, int size)
@@ -273,20 +285,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 	
-	//HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
-	HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
-	//HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
-	HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
-	printf("ALL PINS ON...\n");
-	
 	HAL_ADC_Start(&hadc1);
-	
-	HAL_Delay(4000);
-	
-	HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
-	//HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
-	HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
-	//HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 	
 	DMA_Active = 1;
 	HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
@@ -302,18 +301,7 @@ int main(void)
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	if(UART_Flag > 0 && firstSend == 0){ //Press button once to start UART
-		firstSend++;
-		UART_Transmit_F(normalizedBuffer, bufferSize);
-		//UART_Transmit_U(ADCBuffer, bufferSize);
-		
-	}else if(UART_Flag == 3 && firstSend == 1){ //Press button twice more for UART of ZCR & Energy
-		firstSend++;
-		//UART_Transmit_U(ADCBuffer, bufferSize);
-		UART_Transmit_ZCR();
-		UART_Transmit_Energy();
-		//UART_Transmit_F(normalizedBuffer, bufferSize);
-	}
+
 		
 		
   }
@@ -368,7 +356,7 @@ void SystemClock_Config(void)
 
     /**Configure the Systick interrupt time 
     */
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/8000);
+  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
     /**Configure the Systick 
     */
@@ -388,7 +376,7 @@ static void MX_ADC1_Init(void)
     */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.Resolution = ADC_RESOLUTION_8B;
   hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
@@ -397,7 +385,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -407,9 +395,7 @@ static void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = 1;
-  //sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
-	sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
-	//sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
