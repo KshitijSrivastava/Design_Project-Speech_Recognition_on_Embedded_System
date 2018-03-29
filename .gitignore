@@ -1,0 +1,6 @@
+#KEIL project folders to ignore
+*.mx*
+
+Drivers/*
+MDK-ARM/*
+
