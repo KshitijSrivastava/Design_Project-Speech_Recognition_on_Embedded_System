@@ -520,6 +520,41 @@
               <FileType>1</FileType>
               <FilePath>.\fput_debug.c</FilePath>
             </File>
+            <File>
+              <FileName>constants.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\constants.c</FilePath>
+            </File>
+            <File>
+              <FileName>kiss_fft.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\kiss_fft.c</FilePath>
+            </File>
+            <File>
+              <FileName>mfccFunc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\mfccFunc.c</FilePath>
+            </File>
+            <File>
+              <FileName>_kiss_fft_guts.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\_kiss_fft_guts.h</FilePath>
+            </File>
+            <File>
+              <FileName>constants.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\constants.h</FilePath>
+            </File>
+            <File>
+              <FileName>kiss_fft.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\kiss_fft.h</FilePath>
+            </File>
+            <File>
+              <FileName>mfccFunc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\mfccFunc.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

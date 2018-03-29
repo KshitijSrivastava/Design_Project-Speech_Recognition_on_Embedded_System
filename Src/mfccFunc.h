@@ -1,2 +1,2 @@
 
-int mfccFunc(float speech[4000],float mfcc[24][13]);
+int mfccFunc(float*speech,float*mfcc);

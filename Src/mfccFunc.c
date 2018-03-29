@@ -22,7 +22,7 @@ void filter (float*buffer)
 	}
 }
 
-int mfccFunc(float speech[4000],float mfcc[24][13]){ // speech[4000] , mfcc[24][13]
+int mfccFunc(float*speech,float*mfcc){ // speech[4000] , mfcc[24][13]
 //Pre_emph filter
 filter(speech);
 
@@ -94,7 +94,7 @@ for(int f = 0; f<23; f++){//f=23
 		}
 		CC[i] = tempMult*CC_Weights[i];
 		//mfcc[f][i] = H[i];
-		mfcc[f][i] = CC_Weights[3]; //temp input for testing...
+		mfcc[f+i] = CC_Weights[3]; //temp input for testing...
 	}
 
 
