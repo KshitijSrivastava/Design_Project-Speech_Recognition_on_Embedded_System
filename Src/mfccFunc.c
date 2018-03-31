@@ -25,16 +25,20 @@ void filter (float*buffer)
 int mfccFunc(float*speech,float*mfcc){ // speech[4000] , mfcc[24][13]
 //Pre_emph filter
 filter(speech);
-
+printf("filter: %f\n",speech[3]);
+	printf("filter: %f\n",speech[4]);
+	printf("filter: %f\n",speech[5]);
+	printf("filter: %f\n",speech[6]);
 //malloc Hamming array
+
 float* hamming = malloc(320*sizeof(float));
 for(int i = 0; i < 320;i++){
 	hamming[i] = 0.54 - 0.46*cos(2*pi*i/319);
 }
-
+	printf("HERE: %f\n",speech[6]);
 float* frame = malloc(512*sizeof(float));
 for(int f = 0; f<23; f++){//f=23
-
+	printf("loop: %d\n",f);
 	for(int k = 0; k < 320; k++){
 		frame[k] = speech[k+f*160]*hamming[k];
 	}
@@ -68,7 +72,10 @@ for(int f = 0; f<23; f++){//f=23
 		float c = a+b;
 		frame[o] = sqrt(c); //MAG
 	}
-
+printf("frame: %f\n",frame[3]);
+	printf("frame: %f\n",frame[4]);
+	printf("frame: %f\n",frame[5]);
+	printf("frame: %f\n",frame[6]);
 	//Calculate FBE
 	float* FBE = malloc(25*sizeof(float));
 	for(int i = 0; i < 25; i++){
@@ -94,7 +101,7 @@ for(int f = 0; f<23; f++){//f=23
 		}
 		CC[i] = tempMult*CC_Weights[i];
 		//mfcc[f][i] = H[i];
-		mfcc[f+i] = CC_Weights[3]; //temp input for testing...
+		mfcc[f+i] = 22; //temp input for testing...
 	}
 
 

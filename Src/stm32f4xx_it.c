@@ -177,7 +177,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-	if(DMA_Active == 1)
+	if(DMA_Active == 1 && STOP_DMA != 1)
 		HAL_ADC_Start_IT(&hadc1);
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();

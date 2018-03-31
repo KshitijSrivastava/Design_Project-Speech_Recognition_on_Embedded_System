@@ -45,7 +45,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include "mfccFunc.h"
+#include "mfccFunc.h"
+#include "constants.h"
 
 /* USER CODE END Includes */
 
@@ -70,11 +71,13 @@ int callibration = 0;
 float temp_thresh = 0;
 float set_thresh = 0;
 int DMA_Active = 0;
+int STOP_DMA = 0;
 float energy = 0;
 int start = -1;
 int speechCap = 0;
 int fillCounter = 0;
-float mfcc[24][13];
+//float mfccCC[24][13];
+float mfcc[24*13];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -146,6 +149,7 @@ void energyDetect(int index){
 					
 					if(fillCounter > speechSize-2){
 						HAL_ADC_Stop_DMA(&hadc1);
+						STOP_DMA = 1;
 						fillCounter = 0;
 						speechCap = 1;
 						mahalaTrans(speech,speechSize);
@@ -156,8 +160,10 @@ void energyDetect(int index){
 						UART_Transmit_F(speech,speechSize);
 						
 						printf("UART DONE!!\n");
-						//mfcc(speech,CC);
-						//UART_Transmit_F(mfcc[0],13);
+						//printf("Weights: %f\n",CC_Weights[3]);
+						speech[0] = 0;
+						mfccFunc(speech,mfcc);
+						UART_Transmit_F(mfcc,24*13);
 						printf("mfcc DONE!!\n");
 					}
 				}

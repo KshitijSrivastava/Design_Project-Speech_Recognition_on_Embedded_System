@@ -47,7 +47,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 /* USER CODE END Includes */
-
+void UART_Transmit_F(float *array, int size);
 /* Private define ------------------------------------------------------------*/
 
 #define LED3_Pin GPIO_PIN_12
@@ -69,6 +69,7 @@
 /* USER CODE BEGIN Private defines */
 extern const int bufferSize;
 extern int DMA_Active;
+extern int STOP_DMA;
 extern int UART_Flag;
 /* USER CODE END Private defines */
 
