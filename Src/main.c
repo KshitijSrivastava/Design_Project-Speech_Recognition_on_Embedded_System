@@ -66,6 +66,9 @@ float speech[speechSize]; //0.5s of speech
 static uint32_t ADCBuffer[bufferSize];
 float CC[312];
 
+int callibration = 0;
+float temp_thresh = 0;
+float set_thresh = 0;
 int DMA_Active = 0;
 float energy = 0;
 int start = -1;
@@ -92,62 +95,77 @@ void UART_Transmit_U(uint32_t *array, int size);
 
 /* USER CODE BEGIN 0 */
 void energyDetect(int index){	
-		
-		for(int i = index; i < index+(bufferSize/2)-energyFrame;i+=20){ //take windows of 40 & increase by 20
-			if(start == -1){
+		if(callibration < 4){
+			//tempThresh here
+			temp_thresh = 0;
+			for(int i = index; i < index+(bufferSize/2)-energyFrame;i+=20){ //take windows of 40 & increase by 20
 				energy = 0;
 				for(int j = 0; j < energyFrame; j++){
 					energy = energy + ADCBuffer[i+j]*ADCBuffer[i+j];
 				}
-				if(energy > threshold){ //threshold detected...
-					start = i;
-					int pointer = i;
- 					for(int h = 0; h < 2*energyFrame; h++){
-						speech[2*energyFrame-fillCounter] = ADCBuffer[pointer];
- 						pointer--;
-						if(pointer < 0){
-							pointer = bufferSize-1;
+				temp_thresh = temp_thresh + energy;
+			}
+			set_thresh = set_thresh + temp_thresh;
+		}else{
+			for(int i = index; i < index+(bufferSize/2)-energyFrame;i+=20){ //take windows of 40 & increase by 20
+				if(start == -1){
+					energy = 0;
+					for(int j = 0; j < energyFrame; j++){
+						energy = energy + ADCBuffer[i+j]*ADCBuffer[i+j];
+					}
+					if(energy > set_thresh+2000000){ //threshold detected...
+						start = i;
+						int pointer = i;
+						for(int h = 0; h < 6*energyFrame; h++){ //TODO: tweak frames back to 10?
+							speech[6*energyFrame-fillCounter] = ADCBuffer[pointer];
+							pointer--;
+							if(pointer < 0){
+								pointer = bufferSize-1;
+							}
+							fillCounter++;
 						}
- 						fillCounter++;
- 					}
-					for(int k = 0; k < energyFrame;k++){
-						speech[k+fillCounter] = ADCBuffer[i+k];
+						for(int k = 0; k < energyFrame;k++){
+							speech[k+fillCounter] = ADCBuffer[i+k];
+						}
+						fillCounter = fillCounter + energyFrame;
 					}
-					fillCounter = fillCounter + energyFrame;
-				}
-			}else if(fillCounter < speechSize){
-				if(i == 0){
-					for(int k = 0; k < energyFrame;k++){
+				}else if(fillCounter < speechSize){
+					if(i == 0){
+						for(int k = 0; k < energyFrame;k++){
+						
+							speech[k+fillCounter] = ADCBuffer[i+k];
+						}
+						fillCounter = fillCounter + energyFrame;
+					}else{
+						for(int k = 0; k < (energyFrame/2);k++){
+						
+							speech[k+fillCounter] = ADCBuffer[i+(energyFrame/2)+k];
+						}
+						fillCounter = fillCounter + (energyFrame/2);
+					}
 					
-						speech[k+fillCounter] = ADCBuffer[i+k];
+					if(fillCounter > speechSize-2){
+						HAL_ADC_Stop_DMA(&hadc1);
+						fillCounter = 0;
+						speechCap = 1;
+						mahalaTrans(speech,speechSize);
+						//HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
+						HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
+						HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
+						HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
+						UART_Transmit_F(speech,speechSize);
+						
+						printf("UART DONE!!\n");
+						//mfcc(speech,CC);
+						//UART_Transmit_F(mfcc[0],13);
+						printf("mfcc DONE!!\n");
 					}
-					fillCounter = fillCounter + energyFrame;
-				}else{
-					for(int k = 0; k < (energyFrame/2);k++){
-					
-						speech[k+fillCounter] = ADCBuffer[i+(energyFrame/2)+k];
-					}
-					fillCounter = fillCounter + (energyFrame/2);
 				}
 				
-				if(fillCounter > speechSize-2){
-					HAL_ADC_Stop_DMA(&hadc1);
-					fillCounter = 0;
-					speechCap = 1;
-					mahalaTrans(speech,speechSize);
-					UART_Transmit_F(speech,speechSize);
-					
-					printf("UART DONE!!\n");
- 					//mfcc(speech,CC);
-					//UART_Transmit_F(mfcc[0],13);
-					printf("mfcc DONE!!\n");
-				}
 			}
-			
-		}
 		//printf("HERE!!\n");
 
-	
+		}
 }
 
 //Mahalanobis Transform
@@ -188,6 +206,7 @@ void mahalaTrans(float *Speech, int size){
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* AdcHandle)
 		{
+			
 			energyDetect(0);	
 		}
 
@@ -196,6 +215,14 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
 			HAL_ADC_Stop_DMA(&hadc1);
 			HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
 			energyDetect(bufferSize/2);
+			if(callibration < 4){
+				callibration = callibration + 1;
+			}
+			if(callibration == 4){
+				callibration = callibration + 1;
+				float div = ((callibration-1)*2*98); //98 = (2000-40/20)
+				set_thresh = set_thresh/div;
+			}
     }
 
 		
@@ -267,7 +294,10 @@ int main(void)
 	
 	DMA_Active = 1;
 	HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
-
+	HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
+	//HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
+	//HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
+	//HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
 	
   /* USER CODE END 2 */
 
@@ -280,7 +310,6 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 
-		
 		
   }
   /* USER CODE END 3 */
