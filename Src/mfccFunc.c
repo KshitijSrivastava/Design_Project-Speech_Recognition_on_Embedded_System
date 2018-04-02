@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "arm_math.h"
 //#include "constants.h"
 
 #define q	9		/* for 2^3 points */
 #define N	(1<<q)		/* N-point FFT, iFFT */
+
+
 
 typedef struct {
  float r;
@@ -61,9 +64,9 @@ for(int f = 0; f<1; f++){//f=23
 	}
 	
 	//FFT here
-	fft( in, N, out);
+	//fft( in, N, out);
+	//arm_rfft_fast_instance_f32 S;
 	
-
 
 	for(int o = 0; o < 512; o++)
 	{
