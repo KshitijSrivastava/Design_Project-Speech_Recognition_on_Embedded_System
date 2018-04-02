@@ -338,12 +338,14 @@ void kf_factor(int n,int * facbuf)
  * */
 kiss_fft_cfg kiss_fft_alloc(int nfft,int inverse_fft,void * mem,size_t * lenmem )
 {
-    kiss_fft_cfg st=NULL;
+    //kiss_fft_cfg st=NULL;
+		
     size_t memneeded = sizeof(struct kiss_fft_state)
         + sizeof(kiss_fft_cpx)*(nfft-1); /* twiddle factors*/
-
+		kiss_fft_cfg st=malloc( 10000 );
     if ( lenmem==NULL ) {
-        st = ( kiss_fft_cfg)KISS_FFT_MALLOC( memneeded );
+        //st = ( kiss_fft_cfg)malloc( memneeded );
+				
     }else{
         if (mem != NULL && *lenmem >= memneeded)
             st = (kiss_fft_cfg)mem;

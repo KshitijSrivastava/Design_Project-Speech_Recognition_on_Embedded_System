@@ -65,7 +65,7 @@ const float threshold = 181000000;
 
 float speech[speechSize]; //0.5s of speech
 static uint32_t ADCBuffer[bufferSize];
-float CC[312];
+//float CC[312];
 
 int callibration = 0;
 float temp_thresh = 0;
@@ -153,6 +153,7 @@ void energyDetect(int index){
 						fillCounter = 0;
 						speechCap = 1;
 						mahalaTrans(speech,speechSize);
+						speech[0] = 0;
 						//HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
 						HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 						HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
@@ -161,9 +162,10 @@ void energyDetect(int index){
 						
 						printf("UART DONE!!\n");
 						//printf("Weights: %f\n",CC_Weights[3]);
-						speech[0] = 0;
+						
 						mfccFunc(speech,mfcc);
-						UART_Transmit_F(mfcc,24*13);
+						//UART_Transmit_F(mfcc,24*13);
+
 						printf("mfcc DONE!!\n");
 					}
 				}

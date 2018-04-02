@@ -23,7 +23,6 @@
 "numrecdp\stm32f4xx_hal_msp.o"
 "numrecdp\fput_debug.o"
 "numrecdp\constants.o"
-"numrecdp\kiss_fft.o"
 "numrecdp\mfccfunc.o"
 --library_type=microlib --strict --scatter "NumRecDP\NumRecDP.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
