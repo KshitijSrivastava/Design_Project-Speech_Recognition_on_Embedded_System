@@ -27,13 +27,16 @@ Project File Date:  04/01/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'NumRecDP'
-assembling startup_stm32f407xx.s...
-compiling system_stm32f4xx.c...
 compiling mfccFunc.c...
-../Drivers/CMSIS/Include/core_cm4.h(129): error:  #35: #error directive: "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
-        #error "Compiler generates FPU instructions for a device without an FPU (check __FPU_PRESENT)"
-..\Src\mfccFunc.c: 0 warnings, 1 error
-"NumRecDP\NumRecDP.axf" - 1 Error(s), 0 Warning(s).
+..\Src\mfccFunc.c(40): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                buffer[i] = buffer[i] - 0.95*buffer[i-1];
+..\Src\mfccFunc.c: 1 warning, 0 errors
+linking...
+NumRecDP\NumRecDP.axf: Error: L6218E: Undefined symbol arm_rfft_fast_f32 (referred from mfccfunc.o).
+Not enough information to list image symbols.
+Not enough information to list load addresses in the image map.
+Finished: 2 information, 0 warning and 1 error messages.
+"NumRecDP\NumRecDP.axf" - 1 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
