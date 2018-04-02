@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "arm_math.h"
 #include "mfccFunc.h"
 #include "constants.h"
 

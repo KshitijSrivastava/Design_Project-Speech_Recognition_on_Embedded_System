@@ -1,7 +1,16 @@
+#include "main.h"
+#include "stm32f4xx_hal.h"
+#include "mfccFunc.h"
+#include <stdint.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "arm_math.h"
+
+#include "constants.h"
+
+//#include "arm_math.h"
 //#include "constants.h"
 
 #define q	9		/* for 2^3 points */
@@ -47,44 +56,45 @@ for(int i = 0; i < 320;i++){
 }
 	printf("HERE: %f\n",speech[6]);
 float* frame = malloc(512*sizeof(float));
+float* frame2 = malloc(512*sizeof(float));
 for(int f = 0; f<1; f++){//f=23
 	printf("loop: %d\n",f);
 	for(int k = 0; k < 320; k++){
 		frame[k] = speech[k+f*160]*hamming[k];
 	}
-
-	complex_float in[512], out[512];
-	for(int i = 0; i < 512; i++){
-		if(i<320){
-			in[i].r = frame[i];
-		}else{
-			in[i].r = 0;
-		}
-		in[i].i = 0;
-	}
+	
+//	complex_float in[512], out[512];
+//	for(int i = 0; i < 512; i++){
+//		if(i<320){
+//			in[i].r = frame[i];
+//		}else{
+//			in[i].r = 0;
+//		}
+//		in[i].i = 0;
+//	}
 	
 	//FFT here
 	//fft( in, N, out);
-	//arm_rfft_fast_instance_f32 S;
-	
+	arm_rfft_fast_instance_f32 S;
+	arm_rfft_fast_f32(&S,frame,frame2,0);
 
-	for(int o = 0; o < 512; o++)
-	{
-		float a = in[o].r;
-		float b = in[o].i;
-		a = a*a;
-		b = b*b;
-		float c = a+b;
-		frame[o] = sqrt(c); //MAG
-	}
-	printf("in[5].r: %f\n",in[5].r);
-	printf("in[5].i: %f\n",in[5].i);
-	printf("in[10].r: %f\n",in[10].r);
-	printf("in[10].i: %f\n",in[10].i);
-	printf("frame: %f\n",frame[3]);
-	printf("frame: %f\n",frame[4]);
-	printf("frame: %f\n",frame[5]);
-	printf("frame: %f\n",frame[6]);
+//	for(int o = 0; o < 512; o++)
+//	{
+//		float a = in[o].r;
+//		float b = in[o].i;
+//		a = a*a;
+//		b = b*b;
+//		float c = a+b;
+//		frame[o] = sqrt(c); //MAG
+//	}
+//	printf("in[5].r: %f\n",in[5].r);
+//	printf("in[5].i: %f\n",in[5].i);
+//	printf("in[10].r: %f\n",in[10].r);
+//	printf("in[10].i: %f\n",in[10].i);
+	printf("frame: %f\n",frame2[3]);
+	printf("frame: %f\n",frame2[4]);
+	printf("frame: %f\n",frame2[5]);
+	printf("frame: %f\n",frame2[6]);
 //	//Calculate FBE
 //	float* FBE = malloc(25*sizeof(float));
 //	for(int i = 0; i < 25; i++){
