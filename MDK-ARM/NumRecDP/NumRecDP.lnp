@@ -24,6 +24,7 @@
 "numrecdp\fput_debug.o"
 "numrecdp\constants.o"
 "numrecdp\mfccfunc.o"
+"C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Lib\ARM\arm_cortexM4lf_math.lib"
 --library_type=microlib --strict --scatter "NumRecDP\NumRecDP.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -33,8 +33,5 @@ numrecdp\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
 numrecdp\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 numrecdp\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 numrecdp\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
-numrecdp\main.o: ../Drivers/CMSIS/Include/arm_math.h
-numrecdp\main.o: ../Drivers/CMSIS/Include/core_cm4.h
-numrecdp\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 numrecdp\main.o: ../Src/mfccFunc.h
 numrecdp\main.o: ../Src/constants.h
