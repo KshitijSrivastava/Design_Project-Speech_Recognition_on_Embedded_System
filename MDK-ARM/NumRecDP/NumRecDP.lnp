@@ -1,4 +1,4 @@
---cpu=Cortex-M4.fp
+--cpu Cortex-M4.fp
 "numrecdp\startup_stm32f407xx.o"
 "numrecdp\stm32f4xx_hal_flash_ex.o"
 "numrecdp\stm32f4xx_hal_rcc_ex.o"
@@ -26,6 +26,6 @@
 "numrecdp\mfccfunc.o"
 "C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Lib\ARM\arm_cortexM4lf_math.lib"
 --library_type=microlib --strict --scatter "NumRecDP\NumRecDP.sct"
---summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "NumRecDP.map" -o NumRecDP\NumRecDP.axf

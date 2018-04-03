@@ -46,8 +46,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include "arm_math.h"
+#include "arm_const_structs.h"
 #include "mfccFunc.h"
 #include "constants.h"
+
 
 /* USER CODE END Includes */
 
@@ -63,9 +65,12 @@ const int bufferSize = 4000;
 const int speechSize = 4000;
 const int energyFrame = 40;
 const float threshold = 181000000;
-
+float mfcc[24*13];
 float speech[speechSize]; //0.5s of speech
 static uint32_t ADCBuffer[bufferSize];
+//float fftIn[512*2];
+//float fftOut[512];
+
 //float CC[312];
 
 int callibration = 0;
@@ -78,7 +83,7 @@ int start = -1;
 int speechCap = 0;
 int fillCounter = 0;
 //float mfccCC[24][13];
-float mfcc[24*13];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -163,9 +168,9 @@ void energyDetect(int index){
 						
 						printf("UART DONE!!\n");
 						//printf("Weights: %f\n",CC_Weights[3]);
-						
+
 						mfccFunc(speech,mfcc);
-						//UART_Transmit_F(mfcc,24*13);
+						UART_Transmit_F(mfcc,2*13);
 
 						printf("mfcc DONE!!\n");
 					}
@@ -261,6 +266,7 @@ void UART_Transmit_F(float *array, int size)
 			}
 			printf("Done UART...\n");
 		}
+
 		
 	
 /* USER CODE END 0 */
@@ -302,6 +308,24 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	
 	HAL_ADC_Start(&hadc1);
+	
+	
+
+//	float k = 1;
+//	for(int l = 0; l <512;l++){
+//		if(k > 30){
+//		k = 1;
+//		}
+//		fftIn[l] = k;
+//		k++;
+//	}
+//	UART_Transmit_F(fftIn,512*2);
+//	arm_cfft_f32(&arm_cfft_sR_f32_len512,fftIn,0,1);
+//	UART_Transmit_F(fftIn,512*2);
+//	arm_cmplx_mag_f32(fftIn,fftOut,512);
+//	UART_Transmit_F(fftOut,512);
+	
+	
 	
 	DMA_Active = 1;
 	HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
