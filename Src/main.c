@@ -66,6 +66,7 @@ const int speechSize = 4000;
 const int energyFrame = 40;
 const float threshold = 181000000;
 float mfcc[24*13];
+float results[10];
 float speech[speechSize]; //0.5s of speech
 static uint32_t ADCBuffer[bufferSize];
 //float fftIn[512*2];
@@ -173,6 +174,10 @@ void energyDetect(int index){
 						UART_Transmit_F(mfcc,24*13);
 
 						printf("mfcc DONE!!\n");
+						
+						//TODO: send mfcc pointer into NN and get results
+						classification(mfcc,results);
+						
 					}
 				}
 				
