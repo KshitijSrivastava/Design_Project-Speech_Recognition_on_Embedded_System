@@ -22,17 +22,17 @@ Dialog DLL:      TCM.DLL V1.14.5.0
  
 <h2>Project:</h2>
 C:\DesignProject\MDK-ARM\NumRecDP.uvprojx
-Project File Date:  04/02/2018
+Project File Date:  04/03/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.05 update 2 (build 169)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'NumRecDP'
 compiling main.c...
-../Src/main.c(251): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+../Src/main.c(256): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
                                         HAL_UART_Transmit(&huart2, send, 9, 1000);
-../Src/main.c(262): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+../Src/main.c(267): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
                                         HAL_UART_Transmit(&huart2, send, 9, 1000);
-../Src/main.c(264): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+../Src/main.c(269): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
                                         HAL_UART_Transmit(&huart2, send, 9, 1000);
 ../Src/main.c: 3 warnings, 0 errors
 linking...
@@ -43,10 +43,10 @@ Program Size: Code=20042 RO-data=958 RW-data=28392 ZI-data=34504
 
 Package Vendor: ARM
                 http://www.keil.com/pack/ARM.CMSIS.5.0.1.pack
-                ARM::CMSIS:CORE:5.0.1
+                ARM::CMSIS:DSP:1.5.1
                 CMSIS (Cortex Microcontroller Software Interface Standard)
-   * Component: CORE Version: 5.0.1
    * Component: DSP Version: 1.5.1
+   * Component: CORE Version: 5.0.1
 
 <h2>Collection of Component include folders:</h2>
   C:\DesignProject\MDK-ARM\RTE
@@ -55,11 +55,11 @@ Package Vendor: ARM
 
 <h2>Collection of Component Files used:</h2>
 
-   * Component: ARM::CMSIS:CORE:5.0.1
-
    * Component: ARM::CMSIS:DSP:1.5.1
       Library file:  CMSIS\Lib\ARM\arm_cortexM4lf_math.lib
       Include file:  CMSIS\Include\arm_math.h
+
+   * Component: ARM::CMSIS:CORE:5.0.1
 </pre>
 </body>
 </html>

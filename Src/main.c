@@ -176,7 +176,7 @@ void energyDetect(int index){
 						printf("mfcc DONE!!\n");
 						
 						//TODO: send mfcc pointer into NN and get results
-						classification(mfcc,results);
+						//classification(mfcc,results);
 						
 					}
 				}
