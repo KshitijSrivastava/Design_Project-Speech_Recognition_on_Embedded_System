@@ -45,11 +45,15 @@ printf("filter: %f\n",speech[3]);
 float input[2*512];
 float frame[512];
 
-for(int f = 0; f<3; f++){//f=23
+for(int f = 0; f<24; f++){//f=23
 	printf("loop: %d\n",f);
-	for(int k = 0; k < 320; k++){
+	for(int k = 0; k < 2*512; k++){
+		if(k < 320){
 		int index = k+f*160;
 		input[k] = speech[index]*hamming[k];
+		}else{
+			input[k] = 0;
+		}
 //		printf("speech: %f\n",speech[index]);
 //		printf("hamming: %f\n",hamming[k]);
 //		printf("S * F: %f\n",speech[index]*hamming[k]);
@@ -76,7 +80,9 @@ for(int f = 0; f<3; f++){//f=23
 	printf("inputCFFT: %f\n",input[6]);
 	arm_cmplx_mag_f32(input,frame,512);
 
-
+	if(f == 0){
+		UART_Transmit_F(frame,512);
+	}
 //	for(int o = 0; o < 512; o++)
 //	{
 //		float a = in[o].r;

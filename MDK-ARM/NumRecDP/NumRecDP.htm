@@ -3,9 +3,9 @@
 <title>Static Call Graph - [NumRecDP\NumRecDP.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image NumRecDP\NumRecDP.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050169: Last Updated: Mon Apr 02 21:36:58 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050169: Last Updated: Mon Apr 02 22:32:14 2018
 <BR><P>
-<H3>Maximum Stack Usage =       6692 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =       6684 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 ADC_IRQHandler &rArr; HAL_ADC_IRQHandler &rArr; HAL_ADC_ConvCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
 <P>
@@ -629,7 +629,7 @@ Global Symbols
 <P><STRONG><a name="[e3]"></a>__decompress1</STRONG> (Thumb, 86 bytes, Stack size unknown bytes, __dczerorl2.o(.text), UNUSED)
 
 <P><STRONG><a name="[1d]"></a>ADC_IRQHandler</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, stm32f4xx_it.o(i.ADC_IRQHandler))
-<BR><BR>[Stack]<UL><LI>Max Depth = 6692<LI>Call Chain = ADC_IRQHandler &rArr; HAL_ADC_IRQHandler &rArr; HAL_ADC_ConvCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
+<BR><BR>[Stack]<UL><LI>Max Depth = 6684<LI>Call Chain = ADC_IRQHandler &rArr; HAL_ADC_IRQHandler &rArr; HAL_ADC_ConvCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_IRQHandler
 </UL>
@@ -670,7 +670,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[7c]"></a>HAL_ADC_ConvCpltCallback</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, main.o(i.HAL_ADC_ConvCpltCallback))
-<BR><BR>[Stack]<UL><LI>Max Depth = 6676<LI>Call Chain = HAL_ADC_ConvCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
+<BR><BR>[Stack]<UL><LI>Max Depth = 6668<LI>Call Chain = HAL_ADC_ConvCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;energyDetect
 <LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_Stop_DMA
@@ -681,7 +681,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[7e]"></a>HAL_ADC_ConvHalfCpltCallback</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, main.o(i.HAL_ADC_ConvHalfCpltCallback))
-<BR><BR>[Stack]<UL><LI>Max Depth = 6668<LI>Call Chain = HAL_ADC_ConvHalfCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
+<BR><BR>[Stack]<UL><LI>Max Depth = 6660<LI>Call Chain = HAL_ADC_ConvHalfCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;energyDetect
 </UL>
@@ -694,7 +694,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[7f]"></a>HAL_ADC_IRQHandler</STRONG> (Thumb, 316 bytes, Stack size 16 bytes, stm32f4xx_hal_adc.o(i.HAL_ADC_IRQHandler))
-<BR><BR>[Stack]<UL><LI>Max Depth = 6692<LI>Call Chain = HAL_ADC_IRQHandler &rArr; HAL_ADC_ConvCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
+<BR><BR>[Stack]<UL><LI>Max Depth = 6684<LI>Call Chain = HAL_ADC_IRQHandler &rArr; HAL_ADC_ConvCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_ConvCpltCallback
 <LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_LevelOutOfWindowCallback
@@ -1031,7 +1031,8 @@ Global Symbols
 <LI><a href="#[b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
-<BR>[Called By]<UL><LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;energyDetect
+<BR>[Called By]<UL><LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfccFunc
+<LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;energyDetect
 </UL>
 
 <P><STRONG><a name="[6]"></a>UsageFault_Handler</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f4xx_it.o(i.UsageFault_Handler))
@@ -1201,7 +1202,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[84]"></a>energyDetect</STRONG> (Thumb, 490 bytes, Stack size 40 bytes, main.o(i.energyDetect))
-<BR><BR>[Stack]<UL><LI>Max Depth = 6668<LI>Call Chain = energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
+<BR><BR>[Stack]<UL><LI>Max Depth = 6660<LI>Call Chain = energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_TogglePin
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mfccFunc
@@ -1261,13 +1262,14 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[cf]"></a>mfccFunc</STRONG> (Thumb, 624 bytes, Stack size 6392 bytes, mfccfunc.o(i.mfccFunc))
-<BR><BR>[Stack]<UL><LI>Max Depth = 6628<LI>Call Chain = mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
+<P><STRONG><a name="[cf]"></a>mfccFunc</STRONG> (Thumb, 668 bytes, Stack size 6384 bytes, mfccfunc.o(i.mfccFunc))
+<BR><BR>[Stack]<UL><LI>Max Depth = 6620<LI>Call Chain = mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_cmplx_mag_f32
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;arm_cfft_f32
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;filter
 <LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
+<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Transmit_F
 <LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_logf
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
@@ -1325,7 +1327,7 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[5f]"></a>ADC_DMAConvCplt</STRONG> (Thumb, 98 bytes, Stack size 8 bytes, stm32f4xx_hal_adc.o(i.ADC_DMAConvCplt))
-<BR><BR>[Stack]<UL><LI>Max Depth = 6684<LI>Call Chain = ADC_DMAConvCplt &rArr; HAL_ADC_ConvCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
+<BR><BR>[Stack]<UL><LI>Max Depth = 6676<LI>Call Chain = ADC_DMAConvCplt &rArr; HAL_ADC_ConvCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_ConvCpltCallback
 </UL>
@@ -1339,7 +1341,7 @@ Local Symbols
 <BR>[Address Reference Count : 1]<UL><LI> stm32f4xx_hal_adc.o(i.HAL_ADC_Start_DMA)
 </UL>
 <P><STRONG><a name="[60]"></a>ADC_DMAHalfConvCplt</STRONG> (Thumb, 10 bytes, Stack size 8 bytes, stm32f4xx_hal_adc.o(i.ADC_DMAHalfConvCplt))
-<BR><BR>[Stack]<UL><LI>Max Depth = 6676<LI>Call Chain = ADC_DMAHalfConvCplt &rArr; HAL_ADC_ConvHalfCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
+<BR><BR>[Stack]<UL><LI>Max Depth = 6668<LI>Call Chain = ADC_DMAHalfConvCplt &rArr; HAL_ADC_ConvHalfCpltCallback &rArr; energyDetect &rArr; mfccFunc &rArr; arm_cfft_f32 &rArr; arm_cfft_radix8by4_f32 &rArr; arm_radix8_butterfly_f32
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_ConvHalfCpltCallback
 </UL>

@@ -170,7 +170,7 @@ void energyDetect(int index){
 						//printf("Weights: %f\n",CC_Weights[3]);
 
 						mfccFunc(speech,mfcc);
-						UART_Transmit_F(mfcc,2*13);
+						UART_Transmit_F(mfcc,24*13);
 
 						printf("mfcc DONE!!\n");
 					}
