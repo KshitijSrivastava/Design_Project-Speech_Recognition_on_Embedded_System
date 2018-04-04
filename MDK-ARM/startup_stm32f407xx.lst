@@ -879,8 +879,7 @@ erwork --depend=numrecdp\startup_stm32f407xx.d -onumrecdp\startup_stm32f407xx.o
  -IC:\DesignProject\MDK-ARM\RTE -IC:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0
 \Drivers\CMSIS\Device\ST\STM32F4xx\Include -IC:\Keil_v5\ARM\CMSIS\Include --pre
 define="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 515" --predefine
-="STM32F407xx SETA 1" --predefine="STM32F407xx SETA 1" --list=startup_stm32f407
-xx.lst startup_stm32f407xx.s
+="STM32F407xx SETA 1" --list=startup_stm32f407xx.lst startup_stm32f407xx.s
 
 
 
