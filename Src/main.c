@@ -78,6 +78,8 @@ float energy = 0;
 int start = -1;
 int speechCap = 0;
 int fillCounter = 0;
+int VAD_end_index = -1;
+int end_VAD_counter = 0;
 
 
 /* USER CODE END PV */
@@ -136,15 +138,28 @@ void energyDetect(int index){
 						fillCounter = fillCounter + energyFrame;
 					}
 				}else if(fillCounter < speechSize){
-					if(i == 0){
+					energy = 0;
+					for(int j = 0; j < energyFrame; j++){
+						energy = energy + ADCBuffer[i+j]*ADCBuffer[i+j];
+					}
+					//calculated energy for the frame
+					if(fillCounter > 2200 && energy < set_thresh+1000000 && VAD_end_index == -1){
+								end_VAD_counter++;
+								if(end_VAD_counter > 6){
+									VAD_end_index = fillCounter+energyFrame;
+								}
+							}else{
+								end_VAD_counter = 0;
+							}
+							
+					if(i == 0){ //TODO: set VAD end pointer and see if speech is being filled up properly...
 						for(int k = 0; k < energyFrame;k++){
-						
+							
 							speech[k+fillCounter] = ADCBuffer[i+k];
 						}
 						fillCounter = fillCounter + energyFrame;
 					}else{
 						for(int k = 0; k < (energyFrame/2);k++){
-						
 							speech[k+fillCounter] = ADCBuffer[i+(energyFrame/2)+k];
 						}
 						fillCounter = fillCounter + (energyFrame/2);
@@ -156,12 +171,16 @@ void energyDetect(int index){
 						fillCounter = 0;
 						speechCap = 1;
 						mahalaTrans(speech,speechSize);
+						
+						for(int h = VAD_end_index; h <4000;h++){
+							speech[h] = 0;
+						}
 						speech[0] = 0;
 						//HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
 						HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 						HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
 						HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
-						//UART_Transmit_F(speech,speechSize);
+						UART_Transmit_F(speech,speechSize);
 						
 						printf("UART DONE!!\n");
 						//printf("Weights: %f\n",CC_Weights[3]);
@@ -252,7 +271,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
 			}
     }
 
-		
+		 
 		
 /* Function to send uint32_t buffer over UART */	
 void UART_Transmit_U(uint32_t *array, int size)
@@ -271,14 +290,16 @@ void UART_Transmit_F(float *array, int size)
 			char send[20];
 			printf("Sending float via UART...\n");
 			for(int i = 0; i < size; i++){
-					sprintf(send, " %f,\r\n",(float)array[i]);
-					HAL_UART_Transmit(&huart2, send, 9, 1000);
-					sprintf(send, "      \r\n");
-					HAL_UART_Transmit(&huart2, send, 9, 1000);
+					sprintf(send, " %f,\r\n",array[i]);
+  				HAL_UART_Transmit(&huart2, send, 9, 1000);
+  				sprintf(send, " ,****\r\n");
+  				HAL_UART_Transmit(&huart2, send, 9, 1000);
 					
 			}
 			printf("Done UART...\n");
 		}
+		
+
 
 void UART_Transmit_R(float *array, int size)
 		{
