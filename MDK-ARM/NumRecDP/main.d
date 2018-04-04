@@ -40,3 +40,4 @@ numrecdp\main.o: ../Drivers/CMSIS/Include/arm_const_structs.h
 numrecdp\main.o: ../Drivers/CMSIS/Include/arm_common_tables.h
 numrecdp\main.o: ../Src/mfccFunc.h
 numrecdp\main.o: ../Src/constants.h
+numrecdp\main.o: ../Src/classification.h

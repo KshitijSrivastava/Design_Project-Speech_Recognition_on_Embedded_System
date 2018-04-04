@@ -573,6 +573,11 @@
               <FilePath>..\Src\mfccFunc.h</FilePath>
             </File>
             <File>
+              <FileName>classification.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Src\classification.h</FilePath>
+            </File>
+            <File>
               <FileName>classification.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\classification.c</FilePath>
@@ -581,11 +586,6 @@
               <FileName>classification_const.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\classification_const.c</FilePath>
-            </File>
-            <File>
-              <FileName>classification.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Src\classification.h</FilePath>
             </File>
             <File>
               <FileName>classification_const.h</FileName>

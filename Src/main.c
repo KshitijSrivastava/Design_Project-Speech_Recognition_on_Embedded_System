@@ -49,7 +49,7 @@
 #include "arm_const_structs.h"
 #include "mfccFunc.h"
 #include "constants.h"
-
+#include "classification.h"
 
 /* USER CODE END Includes */
 
@@ -176,7 +176,8 @@ void energyDetect(int index){
 						printf("mfcc DONE!!\n");
 						
 						//TODO: send mfcc pointer into NN and get results
-						//classification(mfcc,results);
+						classification(mfcc,results);
+						UART_Transmit_F(results,10);
 						
 					}
 				}
@@ -240,6 +241,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
 			if(callibration == 4){
 				callibration = callibration + 1;
 				float div = ((callibration-1)*2*98); //98 = (2000-40/20)
+				//float div = ((callibration-1)*2*48); //48 = (1000-40/20)
 				set_thresh = set_thresh/div;
 			}
     }
