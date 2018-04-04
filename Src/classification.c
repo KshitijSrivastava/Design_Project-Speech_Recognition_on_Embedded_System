@@ -25,13 +25,13 @@ int classification(float*mfcc,float*results){
 					mfcc[i] = mfcc[i] * gain[i];
 					mfcc[i] = mfcc[i] - 1;
 			}
-			n1[j] += a[j][i] * mfcc[i];
+			n1[j] = n1[j] + (a[j][i] * mfcc[i]);
 		}
 	}
 		
 	//input layer calculation n1, a1
 	for( int i=0; i<10; i++) {
-		n1[i] += b1[i];
+		n1[i] = n1[i] + b1[i];
 		printf("n1[%d]: %f\n",i,n1[i]);
 		
 		printf("exp(-2*n1[%d])= %f\n",i, exp(-2*n1[i]));
@@ -47,15 +47,19 @@ int classification(float*mfcc,float*results){
 	
 	for( int i=0; i<10; i++) 
 	{
+		float tempNum = 0;
 		for(int j=0; j<10; j++)
 		{
 			printf("b_a[%d][%d] * a1[%d] : %f   +   ",i,j,i,b_a[i][j] * a1[j]);
-			n2[i] += ( b_a[i][j] * a1[j] );
+			//n2[i] = n2[i] + ( b_a[i][j] * a1[j] );
+			tempNum = tempNum + ( b_a[i][j] * a1[j] );
+			printf("[n2[%d] + (...): %f]",i,n2[i]);
 		}
 		printf("\n");
 		printf("n2[%d]: %f\n",i,n2[i]);
 		printf("b2[%d]: %f\n",i,b2[i]);
-		n2[i] += b2[i];
+		//n2[i] = n2[i] + b2[i];
+		n2[i] = tempNum + b2[i];
 		printf("n2[%d]: %f\n",i,n2[i]);
 		//Find max
 		if(n2[i] > max)
@@ -67,10 +71,11 @@ int classification(float*mfcc,float*results){
 	//Post processing
 	for( int i=0; i<10; i++)
 	{
+			printf("n2[%d]: %f\n",i,n2[i]);
 			n2[i] = n2[i] - max;
 			n2[i] = exp(n2[i]);
 		
-			sum += n2[i];
+			sum = sum + n2[i];
 	}
 	
 	if (sum==0)

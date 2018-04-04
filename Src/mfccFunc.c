@@ -37,7 +37,7 @@ void filter (float*buffer)
 int mfccFunc(float*speech,float*mfcc){ // speech[4000] , mfcc[24*13]
 
 //Pre_emph filter
-filter(speech);
+//filter(speech);
 
 
 for(int f = 0; f<24; f++){//f<24
@@ -84,7 +84,7 @@ for(int f = 0; f<24; f++){//f<24
 		a = a*a;
 		b = b*b;
 		float c = a+b;
-		frame[o] = sqrt(c); //MAG
+		frame[o] = c; //MAG
 	}
 
 

@@ -27,10 +27,21 @@ Project File Date:  04/03/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.05 update 2 (build 169)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'NumRecDP'
-compiling classification.c...
+compiling main.c...
+../Src/classification.h(6): warning:  #1-D: last line of file ends without a newline
+  #endif
+../Src/main.c(174): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                                                                speech[i] = speech[i] - 0.95*speech[i-1];
+../Src/main.c(262): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 9, 1000);
+../Src/main.c(273): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 9, 1000);
+../Src/main.c(275): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 9, 1000);
+../Src/main.c: 5 warnings, 0 errors
 linking...
-Program Size: Code=21890 RO-data=1046 RW-data=43848 ZI-data=34544  
-"NumRecDP\NumRecDP.axf" - 0 Error(s), 0 Warning(s).
+Program Size: Code=21906 RO-data=1046 RW-data=43848 ZI-data=34544  
+"NumRecDP\NumRecDP.axf" - 0 Error(s), 5 Warning(s).
 
 <h2>Software Packages used:</h2>
 

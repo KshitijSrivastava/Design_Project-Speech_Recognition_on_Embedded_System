@@ -67,7 +67,6 @@ void UART_Transmit_F(float *array, int size);
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
-extern const int bufferSize;
 extern int DMA_Active;
 extern int STOP_DMA;
 extern int UART_Flag;

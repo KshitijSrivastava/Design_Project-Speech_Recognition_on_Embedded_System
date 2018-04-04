@@ -61,18 +61,13 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-const int bufferSize = 4000;
+const int bufferSize = 4000;//2000
 const int speechSize = 4000;
 const int energyFrame = 40;
-const float threshold = 181000000;
 float mfcc[24*13];
 float results[10];
 float speech[speechSize]; //0.5s of speech
 static uint32_t ADCBuffer[bufferSize];
-//float fftIn[512*2];
-//float fftOut[512];
-
-//float CC[312];
 
 int callibration = 0;
 float temp_thresh = 0;
@@ -83,7 +78,7 @@ float energy = 0;
 int start = -1;
 int speechCap = 0;
 int fillCounter = 0;
-//float mfccCC[24][13];
+
 
 /* USER CODE END PV */
 
@@ -170,6 +165,15 @@ void energyDetect(int index){
 						printf("UART DONE!!\n");
 						//printf("Weights: %f\n",CC_Weights[3]);
 
+							for(int i = 0; i < 4000; i++){
+								//buffer[i] = 32768*(buffer[i]);
+								speech[i] = 32768*speech[i];
+							}
+							for(int i = 1; i < 4000; i++){
+								//buffer[i] = 32768*(buffer[i]);
+								speech[i] = speech[i] - 0.95*speech[i-1];
+							}
+						
 						mfccFunc(speech,mfcc);
 						UART_Transmit_F(mfcc,24*13);
 
