@@ -160,7 +160,7 @@ void energyDetect(int index){
 						HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 						HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
 						HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
-						UART_Transmit_F(speech,speechSize);
+						//UART_Transmit_F(speech,speechSize);
 						
 						printf("UART DONE!!\n");
 						//printf("Weights: %f\n",CC_Weights[3]);
@@ -175,13 +175,14 @@ void energyDetect(int index){
 							}
 						
 						mfccFunc(speech,mfcc);
-						UART_Transmit_F(mfcc,24*13);
+						//UART_Transmit_F(mfcc,24*13);
 
 						printf("mfcc DONE!!\n");
 						
 						//TODO: send mfcc pointer into NN and get results
 						classification(mfcc,results);
 						UART_Transmit_F(results,10);
+						printf("Classification DONE!!\n");
 						
 					}
 				}

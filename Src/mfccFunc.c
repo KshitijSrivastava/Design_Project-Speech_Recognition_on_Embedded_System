@@ -88,10 +88,10 @@ for(int f = 0; f<24; f++){//f<24
 	}
 
 
-	printf("frame: %f\n",frame[3]);
-	printf("frame: %f\n",frame[4]);
-	printf("frame: %f\n",frame[5]);
-	printf("frame: %f\n",frame[6]);
+//	printf("frame: %f\n",frame[3]);
+//	printf("frame: %f\n",frame[4]);
+//	printf("frame: %f\n",frame[5]);
+//	printf("frame: %f\n",frame[6]);
 
 	//Calculate FBE
 	float FBE[25];

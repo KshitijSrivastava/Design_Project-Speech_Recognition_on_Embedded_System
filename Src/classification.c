@@ -10,7 +10,7 @@
 
 
 
-int classification(float*mfcc,float*results){
+void classification(float*mfcc,float*results){
 	
 	
 	//printf("array a: %f\n", a[30]);
@@ -33,22 +33,22 @@ int classification(float*mfcc,float*results){
 			
 		}
 		n1[j] = tempVar;
-		printf("n1[%d]: %f\n",j,n1[j]);
+		//printf("n1[%d]: %f\n",j,n1[j]);
 	}
 		
 	//input layer calculation n1, a1
 	for( int i=0; i<10; i++) {
 		n1[i] = n1[i] + b1[i];
-		printf("n1[%d]: %f\n",i,n1[i]);
+		//printf("n1[%d]: %f\n",i,n1[i]);
 		
-		printf("exp(-2*n1[%d])= %f\n",i, exp(-2*n1[i]));
+		//printf("exp(-2*n1[%d])= %f\n",i, exp(-2*n1[i]));
 		
 		a1[i] = 2/(1 + exp(-2*n1[i])) -1;
-		printf("al[%d]: %f\n",i,a1[i]);
+		//printf("al[%d]: %f\n",i,a1[i]);
 	}
 	
 	
-		printf("HARDFAULT 1)");
+		//printf("HARDFAULT 1)");
 	//layer 2 calculation
 	
 	
@@ -57,28 +57,28 @@ int classification(float*mfcc,float*results){
 		float tempNum = 0;
 		for(int j=0; j<10; j++)
 		{
-			printf("b_a[%d][%d] * a1[%d] : %f   +   ",i,j,i,b_a[i][j] * a1[j]);
+			//printf("b_a[%d][%d] * a1[%d] : %f   +   ",i,j,i,b_a[i][j] * a1[j]);
 			//n2[i] = n2[i] + ( b_a[i][j] * a1[j] );
 			tempNum = tempNum + ( b_a[i][j] * a1[j] );
-			printf("[n2[%d] + (...): %f]",i,n2[i]);
+			//printf("[n2[%d] + (...): %f]",i,n2[i]);
 		}
-		printf("\n");
-		printf("n2[%d]: %f\n",i,n2[i]);
-		printf("b2[%d]: %f\n",i,b2[i]);
+		//printf("\n");
+		//printf("n2[%d]: %f\n",i,n2[i]);
+		//printf("b2[%d]: %f\n",i,b2[i]);
 		//n2[i] = n2[i] + b2[i];
 		n2[i] = tempNum + b2[i];
-		printf("n2[%d]: %f\n",i,n2[i]);
+		//printf("n2[%d]: %f\n",i,n2[i]);
 		//Find max
 		if(n2[i] > max)
 			max = n2[i];
 	}
 	
-	printf("MAX: %f\n", max);
+	//printf("MAX: %f\n", max);
 	
 	//Post processing
 	for( int i=0; i<10; i++)
 	{
-			printf("n2[%d]: %f\n",i,n2[i]);
+			//printf("n2[%d]: %f\n",i,n2[i]);
 			n2[i] = n2[i] - max;
 			n2[i] = exp(n2[i]);
 		
@@ -91,7 +91,7 @@ int classification(float*mfcc,float*results){
 	//Classification
 	for( int i=0; i<10; i++) {
 		results[i] = n2[i]/sum;
+		printf("results[%d] = %f\n",i,results[i]);
 	}
 	
-	return 1;	
 }
