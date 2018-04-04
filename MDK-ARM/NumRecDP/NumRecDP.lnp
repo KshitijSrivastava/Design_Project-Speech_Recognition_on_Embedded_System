@@ -26,7 +26,6 @@
 "numrecdp\mfccfunc.o"
 "numrecdp\classification.o"
 "numrecdp\classification_const.o"
-"C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Lib\ARM\arm_cortexM4lf_math.lib"
 --library_type=microlib --strict --scatter "NumRecDP\NumRecDP.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

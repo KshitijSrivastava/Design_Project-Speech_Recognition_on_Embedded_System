@@ -95,6 +95,7 @@ void energyDetect(int index);
 void mahalaTrans(float *Speech, int size);
 void mahalaTransUINT(uint32_t *Speech, int size, int index);
 void UART_Transmit_F(float *array, int size);
+void UART_Transmit_R(float *array, int size);
 void UART_Transmit_U(uint32_t *array, int size);
 /* USER CODE END PFP */
 
@@ -181,7 +182,7 @@ void energyDetect(int index){
 						
 						//TODO: send mfcc pointer into NN and get results
 						classification(mfcc,results);
-						UART_Transmit_F(results,10);
+						UART_Transmit_R(results,10);
 						printf("Classification DONE!!\n");
 						
 					}
@@ -270,16 +271,34 @@ void UART_Transmit_F(float *array, int size)
 			char send[20];
 			printf("Sending float via UART...\n");
 			for(int i = 0; i < size; i++){
-					sprintf(send, " %f,\r\n",array[i]);
+					sprintf(send, " %f,\r\n",(float)array[i]);
 					HAL_UART_Transmit(&huart2, send, 9, 1000);
-					sprintf(send, " ,****\r\n");
+					sprintf(send, "      \r\n");
 					HAL_UART_Transmit(&huart2, send, 9, 1000);
 					
 			}
 			printf("Done UART...\n");
 		}
 
-		
+void UART_Transmit_R(float *array, int size)
+		{
+			char send[25];
+			char send2[25];
+			printf("Sending float via UART...\n");
+					sprintf(send, "\nResults\r\n");
+					HAL_UART_Transmit(&huart2, send, 10, 1000);
+			for(int i = 0; i < size; i++){
+				sprintf(send2,"   %d:    ",i);
+					HAL_UART_Transmit(&huart2, send2, 10, 1000);
+					HAL_UART_Transmit(&huart2, send2, 7, 1000);
+					sprintf(send, "%f\r", array[i]);
+					HAL_UART_Transmit(&huart2, send, 9, 1000);
+					sprintf(send, "      \r\n");
+					HAL_UART_Transmit(&huart2, send, 8, 1000);
+					
+			}
+			printf("Done UART...\n");
+		}		
 	
 /* USER CODE END 0 */
 
