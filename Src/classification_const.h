@@ -1,6 +1,6 @@
-extern double offset[312];
-extern double gain[312];
-extern double b1[10];
-extern double a[10][312];
-extern double b2[10];
-extern double b_a[10][10];
+extern float offset[312];
+extern float gain[312];
+extern float b1[10];
+extern float a[10][312];
+extern float b2[10];
+extern float b_a[10][10];
