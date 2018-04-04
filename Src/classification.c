@@ -15,18 +15,25 @@ int classification(float*mfcc,float*results){
 	
 	//printf("array a: %f\n", a[30]);
 	float n1[10], a1[10], n2[10];
+//	float *n1 = malloc(10*sizeof(float));
+//	float *a1 = malloc(10*sizeof(float));
+//	float *n2 = malloc(10*sizeof(float));
 	float max = 0, sum = 0;
 	
 	
 	for( int j=0; j<10; j++) {
+		float tempVar = 0;
 		for( int i=0; i<312; i++){
 			if(j == 0){
 					mfcc[i] = mfcc[i] - offset[i];
 					mfcc[i] = mfcc[i] * gain[i];
 					mfcc[i] = mfcc[i] - 1;
 			}
-			n1[j] = n1[j] + (a[j][i] * mfcc[i]);
+			tempVar = tempVar + (a[j][i] * mfcc[i]);
+			
 		}
+		n1[j] = tempVar;
+		printf("n1[%d]: %f\n",j,n1[j]);
 	}
 		
 	//input layer calculation n1, a1
