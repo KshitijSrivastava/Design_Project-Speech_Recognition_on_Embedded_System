@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "arm_math.h"
 #include "constants.h"
 
 #define q	9		/* for 2^3 points */
@@ -55,37 +56,51 @@ for(int f = 0; f<24; f++){//f<24
 
 	}
 
-	complex_float in[512], out[512];
+//	complex_float in[512], out[512];
 
-	for(int i = 0; i < 512; i++){
-		
-			in[i].r = frame[i];
-			in[i].i = 0;
-		
-			out[i].r = 0;
-			out[i].i = 0;
+//	for(int i = 0; i < 512; i++){
+//		
+//			in[i].r = frame[i];
+//			in[i].i = 0;
+//		
+//			out[i].r = 0;
+//			out[i].i = 0;
+//	}
+
+//	fft( in, N, out);
+//	for(int o = 0; o < 512; o++)
+//	{
+//		float a = in[o].r;
+//		float b = in[o].i;
+//		a = a*a;
+//		b = b*b;
+//		float c = a+b;
+//		frame[o] = c; //MAG
+//	}
+
+	float input[320];
+	float output[512];
+	
+	for(int i = 0; i < 320;i++){
+		input[i] = frame[i];
 	}
-
-
-
-	fft( in, N, out);
-
-
-
+	arm_rfft_fast_instance_f32 S;// rfft instance
+	int op_status = arm_rfft_fast_init_f32(&S, 512);
+		if (op_status != 0) {
+			printf("ERROR HANDLER!!!");
+		}
+	//arm_rfft_fast_init_f32(&S,512); //input: rfft instance & length of real sequence
+	arm_rfft_fast_f32(&S,input, output, 0);//input rfft instance, input sequence, output result, input inverseRFFT
+	
+	arm_cmplx_mag_squared_f32(output,input,256);
+	input[257] = input[256];
+//	
 	if(f == 0){
 		//UART_Transmit_F(frame,512);
 	}
 
 	//FTT DONE!
-	for(int o = 0; o < 512; o++)
-	{
-		float a = in[o].r;
-		float b = in[o].i;
-		a = a*a;
-		b = b*b;
-		float c = a+b;
-		frame[o] = c; //MAG
-	}
+
 
 
 //	printf("frame: %f\n",frame[3]);

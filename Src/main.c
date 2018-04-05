@@ -68,6 +68,7 @@ float mfcc[24*13];
 float results[10];
 float speech[speechSize]; //0.5s of speech
 static uint32_t ADCBuffer[bufferSize];
+float speech3[speechSize];
 
 int callibration = 0;
 float temp_thresh = 0;
@@ -192,6 +193,7 @@ void energyDetect(int index){
 							for(int i = 1; i < 4000; i++){
 								//buffer[i] = 32768*(buffer[i]);
 								speech[i] = speech[i] - 0.95*speech[i-1];
+								//speech3[i] = speech[i];
 							}
 						
 						mfccFunc(speech,mfcc);
@@ -394,7 +396,8 @@ int main(void)
   {
 
   /* USER CODE END WHILE */
-
+	HAL_Delay(4000);
+		HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
   /* USER CODE BEGIN 3 */
 
 		
