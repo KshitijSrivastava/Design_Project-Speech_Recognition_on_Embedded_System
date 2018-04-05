@@ -176,7 +176,7 @@ void energyDetect(int index){
 							}
 						
 						mfccFunc(speech,mfcc);
-						//UART_Transmit_F(mfcc,24*13);
+						UART_Transmit_F(mfcc,24*13);
 
 						printf("mfcc DONE!!\n");
 						
