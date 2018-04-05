@@ -91,7 +91,7 @@ static void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-void energyDetect(int index);
+int energyDetect(int index);
 void mahalaTrans(float *Speech, int size);
 void mahalaTransUINT(uint32_t *Speech, int size, int index);
 void UART_Transmit_F(float *array, int size);
@@ -100,7 +100,7 @@ void UART_Transmit_U(uint32_t *array, int size);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-void energyDetect(int index){	
+int energyDetect(int index){	
 		if(callibration < 4){
 			//tempThresh here
 			temp_thresh = 0;
@@ -180,18 +180,20 @@ void energyDetect(int index){
 
 						printf("mfcc DONE!!\n");
 						
+						
 						//TODO: send mfcc pointer into NN and get results
 						classification(mfcc,results);
 						UART_Transmit_R(results,10);
-						printf("Classification DONE!!\n");
-						
+						//printf("Classification DONE!!\n");
+						return 1;
 					}
 				}
 				
 			}
 		//printf("HERE!!\n");
-
+		
 		}
+		return 0;
 }
 
 //Mahalanobis Transform
@@ -233,7 +235,8 @@ void mahalaTrans(float *Speech, int size){
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* AdcHandle)
 		{
 			
-			energyDetect(0);	
+			energyDetect(0);
+
 		}
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
@@ -246,6 +249,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
 			}
 			if(callibration == 4){
 				callibration = callibration + 1;
+				HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
 				float div = ((callibration-1)*2*98); //98 = (2000-40/20)
 				//float div = ((callibration-1)*2*48); //48 = (1000-40/20)
 				set_thresh = set_thresh/div;
@@ -360,7 +364,7 @@ int main(void)
 	
 	DMA_Active = 1;
 	HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
-	HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
+	
 	//HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 	//HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
 	//HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
@@ -373,6 +377,7 @@ int main(void)
   {
 
   /* USER CODE END WHILE */
+	//HAL_Delay(2000);
 
   /* USER CODE BEGIN 3 */
 
