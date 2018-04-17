@@ -65,7 +65,7 @@ const int bufferSize = 4000;//2000
 const int speechSize = 4000;
 const int energyFrame = 40;
 float mfcc[24*13];
-float results[10];
+float results[10];  
 float speech[speechSize]; //0.5s of speech
 static uint32_t ADCBuffer[bufferSize];
 
