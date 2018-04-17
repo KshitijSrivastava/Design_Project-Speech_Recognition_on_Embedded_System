@@ -66,7 +66,7 @@ const int speechSize = 4000;
 const int energyFrame = 40;
 float mfcc[24*13];
 float results[10];  
-float speech[speechSize]; //0.5s of speech
+static float speech[speechSize]; //0.5s of speech
 static uint32_t ADCBuffer[bufferSize];
 
 int callibration = 0;
@@ -93,49 +93,57 @@ static void MX_USART2_UART_Init(void);
 /* Private function prototypes -----------------------------------------------*/
 int energyDetect(int index);
 void mahalaTrans(float *Speech, int size);
-void mahalaTransUINT(uint32_t *Speech, int size, int index);
 void UART_Transmit_F(float *array, int size);
 void UART_Transmit_R(float *array, int size);
 void UART_Transmit_U(uint32_t *array, int size);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+/* */
 int energyDetect(int index){	
-		if(callibration < 4){
-			//tempThresh here
-			temp_thresh = 0;
-			for(int i = index; i < index+(bufferSize/2)-energyFrame;i+=20){ //take windows of 40 & increase by 20
-				energy = 0;
-				for(int j = 0; j < energyFrame; j++){
-					energy = energy + ADCBuffer[i+j]*ADCBuffer[i+j];
-				}
-				temp_thresh = temp_thresh + energy;
-			}
-			set_thresh = set_thresh + temp_thresh;
-		}else{
-			for(int i = index; i < index+(bufferSize/2)-energyFrame;i+=20){ //take windows of 40 & increase by 20
-				if(start == -1){
-					energy = 0;
-					for(int j = 0; j < energyFrame; j++){
-						energy = energy + ADCBuffer[i+j]*ADCBuffer[i+j];
-					}
-					if(energy > set_thresh+2000000){ //threshold detected...
-						start = i;
-						int pointer = i;
-						for(int h = 0; h < 6*energyFrame; h++){ //TODO: tweak frames back to 10?
-							speech[6*energyFrame-fillCounter] = ADCBuffer[pointer];
-							pointer--;
-							if(pointer < 0){
-								pointer = bufferSize-1;
+		if(callibration < 4){ //While callibrating, we just add up all the energy of every frame and then get the average to set the threshold
+			
+					temp_thresh = 0;
+					for(int i = index; i < index+(bufferSize/2)-energyFrame;i+=20){ //take windows of 40 & increase by 20 (half buffer is 2000)
+							energy = 0;
+							for(int j = 0; j < energyFrame; j++){
+									energy = energy + ADCBuffer[i+j]*ADCBuffer[i+j];
 							}
-							fillCounter++;
-						}
-						for(int k = 0; k < energyFrame;k++){
-							speech[k+fillCounter] = ADCBuffer[i+k];
-						}
-						fillCounter = fillCounter + energyFrame;
+							temp_thresh = temp_thresh + energy;
 					}
-				}else if(fillCounter < speechSize){
+					set_thresh = set_thresh + temp_thresh;
+			
+			
+		}else{
+			for(int i = index; i < index+(bufferSize/2)-energyFrame;i+=20){ //take windows of 40 & increase by 20 (half buffer is 2000)
+				
+				if(start == -1){ //if speech hasn't been detected when energyDetect is called we look for when we can set the start index
+					
+						energy = 0;
+						for(int j = 0; j < energyFrame; j++){ //compute evergy of frame
+							energy = energy + ADCBuffer[i+j]*ADCBuffer[i+j];
+						}
+						
+						if(energy > set_thresh+2000000){ //threshold detected...
+								start = i;
+								int pointer = i;
+								
+										for(int h = 0; h < 6*energyFrame; h++){ //When speech is detected, we go back 6 frames and fill speech up with those
+											speech[6*energyFrame-fillCounter] = ADCBuffer[pointer];
+											pointer--;
+											if(pointer < 0){
+												pointer = bufferSize-1;
+											}
+											fillCounter++;
+										}
+								
+								for(int k = 0; k < energyFrame;k++){ //after back tracking 6 frames fill speech buffer with the remaining values in half buffer from the starting index
+									speech[k+fillCounter] = ADCBuffer[i+k];
+								}
+								fillCounter = fillCounter + energyFrame;
+						}
+					
+				}else if(fillCounter < speechSize){ //if speech has been previously detected we just need to make sure that we dont overflow speech buffer
 					if(i == 0){
 						for(int k = 0; k < energyFrame;k++){
 						
@@ -151,108 +159,95 @@ int energyDetect(int index){
 					}
 					
 					if(fillCounter > speechSize-2){
-						HAL_ADC_Stop_DMA(&hadc1);
-						STOP_DMA = 1;
-						fillCounter = 0;
-						speechCap = 1;
+						HAL_ADC_Stop_DMA(&hadc1); // Stop DMA for speech classification, need to restart it once number is recognized
+						STOP_DMA = 1; //stop DMA flag used by the systick interrupt (will need to enventaully replace with Timer)
+						fillCounter = 0; //reset fill counter for next speech to be captured
+						speechCap = 1; //indicate that speech buffer has been filled
+						start = -1; //reset starting index
 						mahalaTrans(speech,speechSize);
-						speech[0] = 0;
-						//HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
+						
+						//Toggle LEDS to indicate that speech was captured
 						HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
 						HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
 						HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
-						//UART_Transmit_F(speech,speechSize);
+						//UART_Transmit_F(speech,speechSize); //for debugging purposes
 						
 						printf("UART DONE!!\n");
-						//printf("Weights: %f\n",CC_Weights[3]);
+						
 
-							for(int i = 0; i < 4000; i++){
-								//buffer[i] = 32768*(buffer[i]);
-								speech[i] = 32768*speech[i];
-							}
-							for(int i = 1; i < 4000; i++){
-								//buffer[i] = 32768*(buffer[i]);
-								speech[i] = speech[i] - 0.95*speech[i-1];
-							}
+						for(int i = 0; i < 4000; i++){
+							//buffer[i] = 32768*(buffer[i]);
+							speech[i] = 32768*speech[i];
+						}
+						
+						/* Pre-emphasis filter */
+						for(int i = 1; i < 4000; i++){
+							speech[i] = speech[i] - 0.95*speech[i-1];
+						}
 						
 						mfccFunc(speech,mfcc);
 						//UART_Transmit_F(mfcc,24*13);
 
 						printf("mfcc DONE!!\n");
 						
-						
-						//TODO: send mfcc pointer into NN and get results
 						classification(mfcc,results);
 						UART_Transmit_R(results,10);
-						//printf("Classification DONE!!\n");
+						printf("Classification DONE!!\n");
+						
+						//TODO: getting a hardfault at the end due to eithe space limitations or code implementation (USING CMSIS instead of my own fft and matrix multiplications may help)
 						return 1;
 					}
 				}
 				
 			}
-		//printf("HERE!!\n");
 		
 		}
 		return 0;
 }
 
 //Mahalanobis Transform
-void mahalaTransUINT(uint32_t *Speech, int size, int index){
-	float mean;
-	for(int i = index; i < size+index; i++){
-		mean = mean + Speech[i];
-	}
-	mean = mean/size;
-	//printf("Mean: %f\n",mean);
-	float var;
-	for(int i = index; i < size+index; i++){
-		var = var + pow((Speech[i]-mean),2);
-	}
-	var = var/size;
-	//printf("Var: %f\n",var);
-	for(int i = index; i < size+index; i++){ 
-		//ADC_PCM[i] = (Speech[i]-mean)/var;
-	}
-}
 void mahalaTrans(float *Speech, int size){
 	float mean;
 	for(int i = 0; i < size; i++){
 		mean = mean + Speech[i];
 	}
 	mean = mean/size;
-	//printf("Mean: %f\n",mean);
 	float var;
 	for(int i = 0; i < size; i++){
 		var = var + pow((Speech[i]-mean),2);
 	}
 	var = var/size;
-	//printf("Var: %f\n",var);
 	for(int i = 0; i < size; i++){
 		Speech[i] = (Speech[i]-mean)/var;
 	}
+	
+	Speech[0] = Speech[2]; // first index is abnormally high, therefore we assign it a normal value
 }
 
+/* called when 1st half of buffer is filled */
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* AdcHandle)
 		{
-			
 			energyDetect(0);
-
 		}
 
+/* called when 2nd half of buffer is filled */
+/* will increment callibration counter by 1 (every 0.5 seconds) */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* AdcHandle)
     {
+			/* start DMA again using same buffer pointer (circular)*/ 
 			HAL_ADC_Stop_DMA(&hadc1);
 			HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
 			energyDetect(bufferSize/2);
+			
+			/* Will trigger when trheshold stage is complete */
 			if(callibration < 4){
 				callibration = callibration + 1;
 			}
 			if(callibration == 4){
 				callibration = callibration + 1;
-				HAL_GPIO_TogglePin(GPIOD, LD5_Pin);
+				HAL_GPIO_TogglePin(GPIOD, LD5_Pin); //Toggle LED to indicate that callibration is done
 				float div = ((callibration-1)*2*98); //98 = (2000-40/20)
-				//float div = ((callibration-1)*2*48); //48 = (1000-40/20)
-				set_thresh = set_thresh/div;
+				set_thresh = set_thresh/div; //compute average for average energy
 			}
     }
 
@@ -284,6 +279,8 @@ void UART_Transmit_F(float *array, int size)
 			printf("Done UART...\n");
 		}
 
+		
+/* Function to send results from NN over UART */	
 void UART_Transmit_R(float *array, int size)
 		{
 			char send[25];
@@ -314,9 +311,7 @@ void UART_Transmit_R(float *array, int size)
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-//*(uint32_t *)(0xE000ED88) |= 0x00F00000;
-//__DSB();
-//__ISB();
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -345,29 +340,9 @@ int main(void)
 	HAL_ADC_Start(&hadc1);
 	
 	
-
-//	float k = 1;
-//	for(int l = 0; l <512;l++){
-//		if(k > 30){
-//		k = 1;
-//		}
-//		fftIn[l] = k;
-//		k++;
-//	}
-//	UART_Transmit_F(fftIn,512*2);
-//	arm_cfft_f32(&arm_cfft_sR_f32_len512,fftIn,0,1);
-//	UART_Transmit_F(fftIn,512*2);
-//	arm_cmplx_mag_f32(fftIn,fftOut,512);
-//	UART_Transmit_F(fftOut,512);
-	
-	
-	
 	DMA_Active = 1;
 	HAL_ADC_Start_DMA(&hadc1,ADCBuffer,bufferSize);
 	
-	//HAL_GPIO_TogglePin(GPIOD, LED3_Pin);
-	//HAL_GPIO_TogglePin(GPIOD, LED4_Pin);
-	//HAL_GPIO_TogglePin(GPIOD, LD6_Pin);
 	
   /* USER CODE END 2 */
 
@@ -377,7 +352,6 @@ int main(void)
   {
 
   /* USER CODE END WHILE */
-	//HAL_Delay(2000);
 
   /* USER CODE BEGIN 3 */
 
@@ -434,7 +408,7 @@ void SystemClock_Config(void)
 
     /**Configure the Systick interrupt time 
     */
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/8000);
+  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/8000); //FORCING systick clock to be at 8kHz (TODO: trigger clock via timer instead of systick)
 
     /**Configure the Systick 
     */

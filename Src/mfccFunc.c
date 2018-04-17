@@ -21,115 +21,80 @@ void fft(complex_float *v ,int n ,complex_float *tmp );
 static const float pi = 3.1415926;
 
 
-void filter (float*buffer)
-{
-
-	for(int i = 0; i < 4000; i++){
-		//buffer[i] = 32768*(buffer[i]);
-		buffer[i] = 32768*buffer[i];
-	}
-	for(int i = 1; i < 4000; i++){
-		//buffer[i] = 32768*(buffer[i]);
-		buffer[i] = buffer[i] - 0.95*buffer[i-1];
-	}
-}
-
 int mfccFunc(float*speech,float*mfcc){ // speech[4000] , mfcc[24*13]
 
-//Pre_emph filter
-//filter(speech);
 
+	for(int f = 0; f<24; f++){//f<24
+		float frame[512];
 
-for(int f = 0; f<24; f++){//f<24
-	float frame[512];
-
-	printf("loop: %d\n",f);
-
-	for(int k = 0; k < 512; k++){
-		if(k < 320){
-			int index = k+f*160;
-			frame[k] = speech[index]*hamming[k];
-		}else{
-			frame[k] = 0;
+		for(int k = 0; k < 512; k++){
+			if(k < 320){
+				int index = k+f*160;
+				frame[k] = speech[index]*hamming[k];
+			}else{
+				frame[k] = 0;
+			}
 		}
 
-	}
+		complex_float in[512], out[512];
 
-	complex_float in[512], out[512];
-
-	for(int i = 0; i < 512; i++){
-		
-			in[i].r = frame[i];
-			in[i].i = 0;
-		
-			out[i].r = 0;
-			out[i].i = 0;
-	}
-
-
-
-	fft( in, N, out);
-
-
-
-	if(f == 0){
-		//UART_Transmit_F(frame,512);
-	}
-
-	//FTT DONE!
-	for(int o = 0; o < 512; o++)
-	{
-		float a = in[o].r;
-		float b = in[o].i;
-		a = a*a;
-		b = b*b;
-		float c = a+b;
-		frame[o] = c; //MAG
-	}
-
-
-//	printf("frame: %f\n",frame[3]);
-//	printf("frame: %f\n",frame[4]);
-//	printf("frame: %f\n",frame[5]);
-//	printf("frame: %f\n",frame[6]);
-
-	//Calculate FBE
-	float FBE[25];
-	for(int i = 0; i < 25; i++){
-		//FBE = H * frame[0:256]; 25x1 result
-		float tempMult = 0;
-		for(int j = 0; j < 257; j++){
-			tempMult = tempMult + frame[j]*H[i][j];
+		for(int i = 0; i < 512; i++){
+			
+				in[i].r = frame[i];
+				in[i].i = 0;
+			
+				out[i].r = 0;
+				out[i].i = 0;
 		}
-		if(tempMult < 1){
-			tempMult = 1;
+
+		fft( in, N, out);
+
+
+		//FTT DONE!
+		for(int o = 0; o < 512; o++)
+		{
+			float a = in[o].r;
+			float b = in[o].i;
+			a = a*a;
+			b = b*b;
+			float c = a+b;
+			frame[o] = c; //MAG
 		}
-		FBE[i] = tempMult;
+
+
+		//Calculate FBE
+		float FBE[25];
+		for(int i = 0; i < 25; i++){
+			float tempMult = 0;
+			for(int j = 0; j < 257; j++){
+				tempMult = tempMult + frame[j]*H[i][j];
+			}
+			if(tempMult < 1){
+				tempMult = 1;
+			}
+			FBE[i] = tempMult;
+		}
+
+		//Calculate CC
+		float CC[13];
+		for(int i = 0; i < 13; i++){
+			//CC = DCT * log(FBE); 13x1 result
+			float tempMult = 0;
+			for(int j = 0; j < 25; j++){
+					float a = logf(FBE[j]);
+					tempMult = tempMult + a*DCT[i][j];
+			}
+			CC[i] = tempMult*CC_Weights[i];
+			mfcc[f*13+i] = CC[i];
+		}
+
+
+
+
 	}
 
-	//Calculate CC
-	float CC[13];
-	for(int i = 0; i < 13; i++){
-		//CC = DCT * log(FBE); 13x1 result
-		float tempMult = 0;
-		for(int j = 0; j < 25; j++){
-			float a = logf(FBE[j]);
-			tempMult = tempMult + a*DCT[i][j];
-		}
-		CC[i] = tempMult*CC_Weights[i];
-		mfcc[f*13+i] = CC[i];
-		//mfcc[f+i] = 22; //temp input for testing...
-	}
 
-
-
-//	free(FBE);
-//	free(CC);
-}
-
-//free(frame);
-//free(hamming);
-return 0;
+	return 0;
 }
 
 

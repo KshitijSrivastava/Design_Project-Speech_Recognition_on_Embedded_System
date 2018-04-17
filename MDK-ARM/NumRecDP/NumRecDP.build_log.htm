@@ -22,14 +22,37 @@ Dialog DLL:      TCM.DLL V1.14.5.0
  
 <h2>Project:</h2>
 C:\DesignProject\MDK-ARM\NumRecDP.uvprojx
-Project File Date:  04/16/2018
+Project File Date:  04/17/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.05 update 2 (build 169)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'NumRecDP'
+compiling main.c...
+../Src/classification.h(6): warning:  #1-D: last line of file ends without a newline
+  #endif
+../Src/main.c(185): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+                                                        speech[i] = speech[i] - 0.95*speech[i-1];
+../Src/main.c(263): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 9, 1000);
+../Src/main.c(274): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 9, 1000);
+../Src/main.c(276): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 9, 1000);
+../Src/main.c(290): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 10, 1000);
+../Src/main.c(293): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send2, 10, 1000);
+../Src/main.c(294): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send2, 7, 1000);
+../Src/main.c(296): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 9, 1000);
+../Src/main.c(298): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+                                        HAL_UART_Transmit(&huart2, send, 8, 1000);
+../Src/main.c: 10 warnings, 0 errors
+compiling classification.c...
 linking...
-Program Size: Code=21794 RO-data=1046 RW-data=46440 ZI-data=34544  
-"NumRecDP\NumRecDP.axf" - 0 Error(s), 0 Warning(s).
+Program Size: Code=21430 RO-data=1042 RW-data=46440 ZI-data=34544  
+"NumRecDP\NumRecDP.axf" - 0 Error(s), 10 Warning(s).
 
 <h2>Software Packages used:</h2>
 
